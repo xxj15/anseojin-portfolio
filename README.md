@@ -1,7 +1,6 @@
 <div align="center">
 
   <h1>안서진 | Portfolio</h1>
-  <p>Frontend Developer</p>
 
   <br />
 
