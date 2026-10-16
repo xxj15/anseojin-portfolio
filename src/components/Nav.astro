@@ -1,0 +1,259 @@
+---
+/**
+ * 상단 고정 내비 + section-progress.
+ * - 로고(점-선-점 + "안서진")는 홈 최상단으로 간다.
+ * - 영문 앵커 4개는 /#section으로 이동한다(대상이 아직 없어도 링크는 둔다).
+ * - 768px 미만에서는 "메뉴" 버튼이 패널을 연다(JS가 있을 때). JS가 없으면 앵커가 그대로 보인다.
+ * 동작: src/scripts/scroll-spy.ts(진행 바 · 활성 항목 · 스크롤 후 테두리), src/scripts/menu.ts(모바일 메뉴)
+ */
+import { navItems, person } from '../data/site';
+import { withBase } from '../lib/paths';
+import Motif from './Motif.astro';
+
+const menuId = 'site-nav-menu';
+---
+
+<header class="site-header" data-site-header>
+  <div class="container nav-inner">
+    <a class="logo" href={withBase('/#top')} aria-label={`${person.name} 홈`}>
+      <Motif variant="logo" />
+      <span>{person.name}</span>
+    </a>
+    <nav class="site-nav" aria-label="주요 섹션">
+      <button
+        type="button"
+        class="menu-button"
+        aria-expanded="false"
+        aria-controls={menuId}
+        data-menu-button
+      >
+        메뉴
+      </button>
+      <ul id={menuId} class="nav-list" data-menu-panel>
+        {
+          navItems.map((item) => (
+            <li>
+              <a class="nav-link" href={withBase(`/#${item.sectionId}`)} data-nav-link={item.sectionId} lang="en">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <span class="section-progress" aria-hidden="true" data-section-progress></span>
+</header>
+
+<script>
+  import '../scripts/scroll-spy';
+</script>
+
+<script>
+  import '../scripts/menu';
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--nav-height);
+    background: var(--surface-base);
+  }
+
+  /* 스크롤한 뒤에만: 흰색 92% + blur + 아래 hairline (DESIGN.md Elevation & Depth) */
+  .site-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--border-hairline);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .site-header:global(.is-scrolled) {
+    background: var(--nav-scrolled-background);
+    -webkit-backdrop-filter: blur(var(--nav-scrolled-blur));
+    backdrop-filter: blur(var(--nav-scrolled-blur));
+  }
+
+  .site-header:global(.is-scrolled)::after {
+    opacity: 1;
+  }
+
+  .nav-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 44px;
+    flex: none;
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .menu-button {
+    display: none;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-3);
+    margin-right: calc(var(--space-3) * -1);
+    border-radius: var(--radius-md);
+    font-size: var(--body-size);
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--ink-primary);
+  }
+
+  .nav-list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    height: 100%;
+  }
+
+  .nav-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    font-size: var(--body-size);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--ink-secondary);
+    white-space: nowrap;
+  }
+
+  /* 활성 표시: 내비 하단 경계의 2px primary 밑줄 (링크 44px, 내비 64px → 아래로 10px) */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc((44px - var(--nav-height)) / 2);
+    height: 2px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transition: transform var(--duration-nav-indicator) var(--ease-standard);
+  }
+
+  .nav-link[aria-current='location'] {
+    color: var(--ink-primary);
+    font-weight: 600;
+  }
+
+  .nav-link[aria-current='location']::after {
+    transform: scaleX(1);
+  }
+
+  @media (hover: hover) {
+    .nav-link:hover {
+      color: var(--ink-primary);
+    }
+  }
+
+  /* 내비 바로 아래에 붙여, 내비 하단의 활성 밑줄과 겹치지 않게 한다 */
+  .section-progress {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    z-index: 1;
+    width: 100%;
+    height: var(--section-progress-height);
+    background: var(--primary);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-link::after {
+      transition: none;
+    }
+  }
+
+  /* ---------- 768px 미만 ---------- */
+  @media (max-width: 767.98px) {
+    /* JS 없음: 앵커를 그대로 두고 내비 안에서만 가로로 넘긴다(페이지 가로 스크롤 없음) */
+    .nav-list {
+      --ring-space: calc(var(--focus-width) + var(--focus-offset));
+      gap: var(--space-4);
+      overflow-x: auto;
+      scrollbar-width: none;
+      /* 가로 스크롤 영역 양 끝 링크의 포커스 링이 잘리지 않게 링 폭만큼 안쪽 여백(위치는 음수 마진으로 보정) */
+      padding-inline: var(--ring-space);
+      margin-inline: calc(var(--ring-space) * -1);
+    }
+
+    .nav-link {
+      font-size: var(--caption-size);
+    }
+
+    .nav-link::after {
+      bottom: 0;
+    }
+
+    /* JS 있음: 로고 + "메뉴" 버튼, 패널은 내비 바로 아래 전폭 */
+    :global(.js) .menu-button {
+      display: inline-flex;
+    }
+
+    :global(.js) .nav-list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      height: auto;
+      overflow: visible;
+      margin-inline: 0;
+      padding: var(--space-2) var(--page-margin) var(--space-3);
+      background: var(--surface-base);
+      border-bottom: 1px solid var(--border-hairline);
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    }
+
+    :global(.js) .site-header:global(.is-menu-open) .nav-list {
+      display: flex;
+    }
+
+    :global(.js) .nav-link {
+      height: 48px;
+      font-size: var(--body-size);
+    }
+
+    :global(.js) .nav-link::after {
+      content: none;
+    }
+
+    :global(.js) .nav-link[aria-current='location'] {
+      text-decoration-line: underline;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--primary);
+      text-underline-offset: var(--space-2);
+    }
+  }
+</style>

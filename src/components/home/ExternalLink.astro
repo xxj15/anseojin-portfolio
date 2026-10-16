@@ -1,0 +1,53 @@
+---
+/**
+ * 외부 텍스트 링크: 새 탭 + ↗ 아이콘 + 스크린리더용 "(새 창)" (EXPERIENCE.md Interaction Primitives).
+ */
+import Icon from '../Icon.astro';
+
+interface Props {
+  href: string;
+  label: string;
+  class?: string;
+}
+
+const { href, label, class: className } = Astro.props;
+---
+
+<a class:list={['ext-link', className]} href={href} target="_blank" rel="noopener noreferrer">
+  <span>{label}</span>
+  <Icon name="external" />
+  <span class="sr-only">(새 창)</span>
+</a>
+
+<style>
+  .ext-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 32px;
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+    text-underline-offset: var(--space-1);
+    overflow-wrap: anywhere;
+  }
+
+  .ext-link :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-tertiary);
+  }
+
+  @media (hover: hover) {
+    .ext-link:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .ext-link {
+      min-height: 44px;
+    }
+  }
+</style>

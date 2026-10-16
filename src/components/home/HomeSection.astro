@@ -1,0 +1,79 @@
+---
+/**
+ * 홈 섹션 틀: 영문 section-label + 한국어 h2(headline), 위 여백은 섹션 간격(데스크톱 160px · 모바일 96px).
+ * Projects 섹션의 머리글과 같은 위계를 쓴다(DESIGN.md Typography · Layout & Spacing).
+ * - spacing="tight": 히어로 바로 다음 섹션. 히어로 아래 여백(64px)에 이어 위 여백을 64px로 둔다(V2 여백, 사용자 결정).
+ * - end: 페이지의 마지막 섹션. contact-band가 없으므로 아래에 섹션 간격만큼 여백을 둬 화면 끝에 붙지 않게 한다.
+ */
+import SectionLabel from '../SectionLabel.astro';
+
+interface Props {
+  id: string;
+  label: string;
+  title: string;
+  spacing?: 'default' | 'tight';
+  end?: boolean;
+}
+
+const { id, label, title, spacing = 'default', end = false } = Astro.props;
+const titleId = `${id}-title`;
+---
+
+<section
+  class:list={['home-section', { 'home-section--tight': spacing === 'tight', 'home-section--end': end }]}
+  id={id}
+  aria-labelledby={titleId}
+>
+  <div class="container">
+    <div class="home-section-head" data-reveal>
+      <SectionLabel text={label} />
+      <h2 class="home-section-title" id={titleId}>{title}</h2>
+    </div>
+    <slot />
+  </div>
+</section>
+
+<style>
+  .home-section {
+    --home-section-top: var(--section-gap);
+    padding-top: var(--home-section-top);
+    /*
+      앵커 이동·딥링크 때 위 여백만큼 더 내려가지 않게, 어느 섹션이든 머리글이 내비 아래 64px에 오도록
+      위 여백과 64px의 차이만큼 당긴다(tight는 0). 섹션 상자 자체는 그대로라 스크롤 스파이 판정은 같다.
+    */
+    scroll-margin-top: calc(var(--space-8) - var(--home-section-top));
+  }
+
+  .home-section--tight {
+    --home-section-top: var(--space-8);
+  }
+
+  .home-section--end {
+    padding-bottom: var(--section-gap);
+  }
+
+  .home-section-head {
+    margin-bottom: var(--space-7);
+  }
+
+  .home-section-title {
+    margin-top: var(--space-3);
+    font-size: var(--headline-size);
+    font-weight: var(--headline-weight);
+    line-height: var(--headline-line);
+    letter-spacing: var(--headline-tracking);
+  }
+
+  @media (max-width: 767.98px) {
+    .home-section-head {
+      margin-bottom: var(--space-6);
+    }
+
+    .home-section-title {
+      font-size: var(--headline-mobile-size);
+      font-weight: var(--headline-mobile-weight);
+      line-height: var(--headline-mobile-line);
+      letter-spacing: var(--headline-mobile-tracking);
+    }
+  }
+</style>

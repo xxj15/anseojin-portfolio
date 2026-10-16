@@ -1,0 +1,53 @@
+---
+/**
+ * 프로젝트 상세 /projects/<slug> — projects.ts 순서(최신순)로 8개를 정적 생성한다.
+ * article(진행 바 기준, [data-progress-root]) = 헤더(요약 5 + 미디어 7) → 요약 목록 → 케이스 섹션들. 그 아래 project-pager.
+ * Moa는 요약과 트러블슈팅만, NEW:LEARN은 진행 단계 4개만 있는 짧은 상세다(EXPERIENCE.md State Patterns › 짧은 상세).
+ * <title>은 "프로젝트명 — 짧은 요약", description은 카드 한 줄이다.
+ */
+import CaseSection from '../../components/project/CaseSection.astro';
+import Highlights from '../../components/project/Highlights.astro';
+import ProjectHeader from '../../components/project/ProjectHeader.astro';
+import ProjectPager from '../../components/project/ProjectPager.astro';
+import { projectDetails } from '../../data/project-details';
+import { projects } from '../../data/projects';
+import { toPlainText } from '../../data/types';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return projects.map((project, index) => ({ params: { slug: project.slug }, props: { index } }));
+}
+
+interface Props {
+  index: number;
+}
+
+const { index } = Astro.props;
+const project = projects[index];
+const detail = projectDetails[project.slug];
+const title = `${project.name} — ${detail.titleSummary}`;
+const description = toPlainText(project.oneLiner);
+---
+
+<BaseLayout title={title} description={description} ogType="article">
+  <article class="detail" aria-labelledby="detail-title" data-progress-root data-project={project.slug}>
+    <ProjectHeader project={project} detail={detail} index={index} />
+    {detail.highlights && <Highlights highlights={detail.highlights} id="summary" />}
+    {
+      detail.cases.map((caseStudy, caseIndex) => (
+        <CaseSection caseStudy={caseStudy} id={`case-${caseIndex + 1}`} name={project.name} />
+      ))
+    }
+  </article>
+
+  <div class="container detail-end">
+    <ProjectPager slug={project.slug} />
+  </div>
+</BaseLayout>
+
+<style>
+  /* contact-band가 없으므로 pager 아래에 섹션 간격(160px · 모바일 96px)을 둬 화면 끝에 붙지 않게 한다 */
+  .detail-end {
+    padding-bottom: var(--section-gap);
+  }
+</style>

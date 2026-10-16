@@ -1,0 +1,72 @@
+---
+/**
+ * timeline-row: 왼쪽 caption(날짜 · 맥락, ink-tertiary), 오른쪽 내용, 행 사이 hairline (DESIGN.md Components › Timeline row).
+ * 부모는 <ol class="..." role="list">로 감싼다. 내용(slot)의 스타일은 쓰는 쪽이 정한다.
+ * - wide: 데스크톱 3:9 (Experience · Activities)
+ * - compact: 날짜 열 96px (About의 Awards처럼 좁은 단)
+ */
+interface Props {
+  /** 비어 있으면 왼쪽 칸을 비워 두고 내용은 오른쪽 칸에 그대로 둔다(기간 미확인 항목). */
+  meta?: string;
+  variant?: 'wide' | 'compact';
+  id?: string;
+}
+
+const { meta, variant = 'wide', id } = Astro.props;
+---
+
+<li class:list={['timeline-row', `timeline-row--${variant}`]} id={id} data-reveal>
+  {meta && <p class="timeline-meta">{meta}</p>}
+  <div class="timeline-body">
+    <slot />
+  </div>
+</li>
+
+<style>
+  .timeline-row {
+    display: grid;
+    column-gap: var(--gutter);
+    row-gap: var(--space-2);
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .timeline-row:last-child {
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .timeline-row--wide {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  }
+
+  .timeline-row--compact {
+    grid-template-columns: var(--timeline-compact-meta, var(--space-9)) minmax(0, 1fr);
+    padding-block: var(--space-4);
+  }
+
+  .timeline-meta {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+    font-variant-numeric: tabular-nums;
+    /* 오른쪽 첫 줄(제목·본문)의 글줄 가운데에 맞춘다 */
+    padding-top: var(--timeline-meta-offset, 0px);
+  }
+
+  .timeline-body {
+    grid-column: -2;
+    min-width: 0;
+  }
+
+  @media (max-width: 767.98px) {
+    .timeline-row--wide {
+      grid-template-columns: minmax(0, 1fr);
+      padding-block: var(--space-5);
+    }
+
+    .timeline-row--wide .timeline-meta {
+      padding-top: 0;
+    }
+  }
+</style>

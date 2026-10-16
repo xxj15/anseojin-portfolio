@@ -1,0 +1,32 @@
+---
+/**
+ * 영문 섹션 라벨: 점-선-점 모티프(24px) + 8px + 대문자 label.
+ * h2 제목과 함께 읽히도록 h2 안이 아니라 바로 앞에 둔다(EXPERIENCE.md Component Patterns › Section label).
+ */
+import Motif from './Motif.astro';
+
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<p class="section-label">
+  <Motif variant="label" />
+  <span lang="en">{text}</span>
+</p>
+
+<style>
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+</style>

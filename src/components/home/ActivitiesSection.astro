@@ -1,0 +1,294 @@
+---
+/**
+ * Home · Activities(#activities): UI/UX Design 작업물(맨 앞) → 콘텐츠 기획·제작 → 동아리 활동, 모두 timeline-row.
+ * UI/UX 작업물에는 캐치테이블 재구축(히어로 기둥 01 "관련")이 들어간다. 작업물 이미지는 surface-subtle 프레임 안에 contain.
+ */
+import { Image } from 'astro:assets';
+import { activityGroups, type ActivityEntry } from '../../data/profile';
+import { projectPath } from '../../lib/paths';
+import Icon from '../Icon.astro';
+import ExternalLink from './ExternalLink.astro';
+import HomeSection from './HomeSection.astro';
+import Subsection from './Subsection.astro';
+import TimelineRow from './TimelineRow.astro';
+
+interface Props {
+  /** 페이지의 마지막 섹션이면 아래에 섹션 간격을 둔다(src/pages/index.astro가 정한다). */
+  end?: boolean;
+}
+
+const { end = false } = Astro.props;
+
+/** 세로형 기기 화면 3장은 프레임 높이에, 한 장짜리 작업물은 프레임 폭에 맞춰 srcset을 고른다. */
+const imageSizing = (layout: NonNullable<ActivityEntry['media']>['layout'], width: number) =>
+  layout === 'phones'
+    ? { widths: [140, 280, Math.min(width, 420)], sizes: '(min-width: 1024px) 124px, 26vw' }
+    : { widths: [400, Math.min(width, 800)], sizes: '(min-width: 1024px) 400px, calc(100vw - 40px)' };
+---
+
+<HomeSection id="activities" label="ACTIVITIES" title="활동" end={end}>
+  {
+    activityGroups.map((group) => (
+      <Subsection title={group.title} lead={group.lead} id={`activities-${group.id}`}>
+        <ol class="act-list" role="list">
+          {group.entries.map((entry) => (
+            <TimelineRow meta={entry.meta} id={`act-${entry.id}`}>
+              <div class:list={['act', { 'act--media': !!entry.media }]}>
+                <div class="act-text">
+                  <h4 class="act-title">{entry.title}</h4>
+                  {entry.subtitle && <p class="act-subtitle">{entry.subtitle}</p>}
+                  {entry.description && <p class="act-description">{entry.description}</p>}
+                  {entry.points && (
+                    <ul class="bullets" role="list">
+                      {entry.points.map((point) => (
+                        <li>{point}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {entry.facts && (
+                    <dl class="act-facts">
+                      {entry.facts.map((fact) => (
+                        <div class="act-fact">
+                          <dt>{fact.term}</dt>
+                          <dd>{fact.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                  {(entry.links || entry.internalLink) && (
+                    <ul class="act-links" role="list">
+                      {entry.internalLink && (
+                        <li>
+                          <a class="act-internal" href={projectPath(entry.internalLink.slug)}>
+                            {entry.internalLink.label}
+                            <Icon name="arrow-right" />
+                          </a>
+                        </li>
+                      )}
+                      {entry.links?.map((link) => (
+                        <li>
+                          <ExternalLink href={link.href} label={link.label} />
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                {entry.media && (
+                  <div class:list={['act-media', `act-media--${entry.media.layout}`]}>
+                    {entry.media.images.map((image) => (
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        class="act-image"
+                        loading="lazy"
+                        decoding="async"
+                        {...imageSizing(entry.media!.layout, image.src.width)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TimelineRow>
+          ))}
+        </ol>
+      </Subsection>
+    ))
+  }
+</HomeSection>
+
+<style>
+  /* 왼쪽 caption을 오른쪽 제목(title) 첫 줄 가운데에 맞춘다 */
+  .act-list {
+    --timeline-meta-offset: calc((var(--title-size) * var(--title-line) - var(--caption-size) * var(--caption-line)) / 2);
+  }
+
+  .act {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .act--media {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-6);
+  }
+
+  .act-text {
+    min-width: 0;
+    max-width: 680px;
+  }
+
+  .act-title {
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .act-subtitle {
+    margin-top: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .act-description {
+    margin-top: var(--space-3);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .bullets {
+    margin-top: var(--space-3);
+    color: var(--ink-secondary);
+  }
+
+  .act-description + .bullets {
+    margin-top: var(--space-2);
+  }
+
+  .bullets li {
+    position: relative;
+    padding-left: var(--space-4);
+    text-wrap: pretty;
+  }
+
+  .bullets li + li {
+    margin-top: var(--space-1);
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: var(--space-1);
+    top: calc(var(--body-size) * var(--body-line) / 2 - 2px);
+    width: 4px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--border-strong);
+  }
+
+  .act-facts {
+    display: grid;
+    row-gap: var(--space-1);
+    margin-top: var(--space-4);
+    font-size: var(--caption-size);
+    line-height: var(--caption-line);
+  }
+
+  .act-fact {
+    display: grid;
+    grid-template-columns: var(--space-8) minmax(0, 1fr);
+    column-gap: var(--space-3);
+  }
+
+  .act-fact dt {
+    font-weight: var(--caption-weight);
+    color: var(--ink-tertiary);
+  }
+
+  .act-fact dd {
+    min-width: 0;
+    font-weight: var(--caption-weight);
+    color: var(--ink-secondary);
+  }
+
+  .act-links {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-5);
+    margin-top: var(--space-3);
+  }
+
+  .act-internal {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 32px;
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+    text-underline-offset: var(--space-1);
+  }
+
+  .act-internal :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-tertiary);
+  }
+
+  @media (hover: hover) {
+    .act-internal:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  /* ---------- 작업물 이미지 ---------- */
+  .act-media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    aspect-ratio: 16 / 10;
+    min-width: 0;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle);
+    overflow: hidden;
+  }
+
+  .act-media :global(.act-image) {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .act-media--phones :global(.act-image) {
+    flex: 0 1 auto;
+    height: 100%;
+    max-width: calc((100% - var(--space-3) * 2) / 3);
+  }
+
+  .act-media--single :global(.act-image) {
+    border-radius: var(--radius-sm);
+  }
+
+  @media (max-width: 1023.98px) {
+    .act--media {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+
+    .act-media {
+      max-width: 560px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .act-list {
+      --timeline-meta-offset: 0px;
+    }
+
+    .act-internal {
+      min-height: 44px;
+    }
+
+    .act-media {
+      padding: var(--space-3);
+    }
+
+    .act-media--phones {
+      gap: var(--space-2);
+    }
+
+    .act-media--phones :global(.act-image) {
+      max-width: calc((100% - var(--space-2) * 2) / 3);
+    }
+  }
+</style>

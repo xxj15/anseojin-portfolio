@@ -1,0 +1,63 @@
+---
+/**
+ * 상세 헤더의 award-badge / status-pill (DESIGN.md Components › Award badge · Status pill).
+ * 진행 중이면 "진행 중" pill(아이콘 없음), 수상이 있으면 트로피 14px + 수상명 원문, 둘 다 없으면 아무것도 그리지 않는다.
+ * 카드(ProjectCard)와 같은 시각 규칙이다. 카드 스타일은 카드 안에 스코프돼 있어 여기서 따로 정의한다.
+ */
+import type { Project } from '../../data/projects';
+import Icon from '../Icon.astro';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+---
+
+{
+  project.status === 'in-progress' ? (
+    <p class="badge status-pill" data-status-pill>
+      진행 중
+    </p>
+  ) : project.award ? (
+    <p class="badge award-badge" data-award-badge>
+      <Icon name="trophy" strokeWidth={2.2} />
+      <span class="badge-text">{project.award}</span>
+    </p>
+  ) : null
+}
+
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    min-height: calc(var(--caption-size) * var(--caption-line) + var(--space-1) * 2);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+  }
+
+  .award-badge {
+    padding-left: var(--space-2);
+    background: var(--primary-weak);
+    color: var(--primary-pressed);
+  }
+
+  .award-badge :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  .badge-text {
+    text-wrap: balance;
+  }
+
+  .status-pill {
+    background: var(--surface-subtle);
+    color: var(--ink-secondary);
+  }
+</style>

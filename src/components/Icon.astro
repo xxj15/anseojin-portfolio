@@ -1,0 +1,40 @@
+---
+/**
+ * 선 아이콘(24 그리드, currentColor). 항상 장식이라 aria-hidden이다.
+ * 크기는 부모 규칙(예: .btn svg 16px)이나 size prop으로 정한다.
+ */
+import type { IconName } from '../data/site';
+
+interface Props {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+}
+
+const { name, size, strokeWidth = 2, class: className } = Astro.props;
+
+const paths: Record<IconName, string> = {
+  trophy:
+    '<path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/>',
+  'arrow-right': '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  external: '<path d="M7 17 17 7M8 7h9v9"/>',
+  download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+};
+---
+
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width={strokeWidth}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+  set:html={paths[name]}
+/>

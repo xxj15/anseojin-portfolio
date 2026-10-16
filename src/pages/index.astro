@@ -1,0 +1,121 @@
+---
+/**
+ * 홈: 내비 → 히어로 → About → Projects(카드 8개, 최신순) → Experience → Activities(아래 섹션 간격으로 끝남).
+ * 섹션 순서는 내비 순서(About · Projects · Experience · Activities)와 같다(사용자 결정 2026-10-16: About을 맨 위로,
+ * Work → Projects로 이름 변경. 주소도 #projects · #project-<slug>).
+ * 히어로 바로 다음 섹션(About)만 위 여백 64px, 나머지는 섹션 간격(160px · 모바일 96px).
+ */
+import Hero from '../components/Hero.astro';
+import AboutSection from '../components/home/AboutSection.astro';
+import ActivitiesSection from '../components/home/ActivitiesSection.astro';
+import ExperienceSection from '../components/home/ExperienceSection.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import { projects } from '../data/projects';
+import { homeMeta } from '../data/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+/**
+ * 카드는 About 아래로 내려가 첫 화면 밖이므로 즉시 로드하는 카드가 없다(모두 lazy).
+ * 카드 칸마다 id="project-<slug>"를 둔다: 상세 pager의 "전체 프로젝트"가 /#project-<slug>로 그 카드에 돌아온다.
+ */
+const EAGER_CARDS = 0;
+---
+
+<BaseLayout title={homeMeta.title} description={homeMeta.description}>
+  <Hero />
+
+  <AboutSection spacing="tight" />
+
+  <section class="projects" id="projects" aria-labelledby="projects-title">
+    <div class="container">
+      <div class="projects-head" data-reveal>
+        <div>
+          <SectionLabel text="PROJECTS" />
+          <h2 class="projects-title" id="projects-title">프로젝트</h2>
+        </div>
+        <p class="projects-meta">{projects.length}개 프로젝트 · 최신순</p>
+      </div>
+
+      <ul class="card-grid" role="list">
+        {
+          projects.map((project, index) => (
+            <li class="card-cell" id={`project-${project.slug}`} data-reveal>
+              <ProjectCard project={project} eager={index < EAGER_CARDS} />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <ExperienceSection />
+  <ActivitiesSection end />
+</BaseLayout>
+
+<style>
+  /* 다른 섹션과 같은 섹션 간격. 앵커로 오면 머리글이 내비 아래 64px에 오도록 위 여백 차이만큼 당긴다(HomeSection과 같음). */
+  .projects {
+    padding-top: var(--section-gap);
+    scroll-margin-top: calc(var(--space-8) - var(--section-gap));
+  }
+
+  .projects-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    margin-bottom: var(--space-6);
+  }
+
+  .projects-title {
+    margin-top: var(--space-3);
+    font-size: var(--headline-size);
+    font-weight: var(--headline-weight);
+    line-height: var(--headline-line);
+    letter-spacing: var(--headline-tracking);
+  }
+
+  .projects-meta {
+    padding-bottom: var(--space-2);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  /* 카드 8개: 같은 크기·같은 슬롯, 데스크톱 2열×4행, 행 높이 모두 같음 */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: var(--gutter);
+  }
+
+  /*
+    /#project-<slug> 딥링크: 브라우저가 앵커로 스크롤할 때 칸이 아직 리빌 대기(16px 아래로 이동)라면 그만큼 더 띄워,
+    리빌이 끝난 뒤 카드 위쪽이 내비 바로 아래(scroll-padding-top)에 오게 한다.
+  */
+  .card-cell:global(.reveal-pending) {
+    scroll-margin-top: var(--reveal-distance);
+  }
+
+  .card-cell {
+    display: flex;
+    min-width: 0;
+  }
+
+  @media (max-width: 767.98px) {
+    .projects-title {
+      font-size: var(--headline-mobile-size);
+      font-weight: var(--headline-mobile-weight);
+      line-height: var(--headline-mobile-line);
+      letter-spacing: var(--headline-mobile-tracking);
+    }
+
+    .card-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

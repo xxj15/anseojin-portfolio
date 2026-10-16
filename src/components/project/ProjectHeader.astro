@@ -1,0 +1,303 @@
+---
+/**
+ * 상세 헤더: 요약 5컬럼 + 미디어 7컬럼(DESIGN.md Layout & Spacing, mockups/project-ourwish.html).
+ * 요약 순서: PROJECT 번호 라벨 → 기간 → h1 프로젝트명(display) → award-badge / status-pill → 리드 한 줄 → 카드 한 줄
+ * → 역할 · 기술 스택(· 사용 예정) → metric-stat(있을 때) → 버튼(원문에 링크가 있을 때만, 첫 번째가 primary).
+ * 이름 · 기간 · 수상 · 스택 · 한 줄 · 성과 수치는 projects.ts에서 가져와 카드와 어긋나지 않는다.
+ * 1024px 미만에서는 세로로 쌓고 미디어를 위에 둔다(EXPERIENCE.md Responsive & Platform).
+ */
+import { detailStack, type ProjectDetail } from '../../data/project-details';
+import { formatPeriod, type Project } from '../../data/projects';
+import MetricStat from '../MetricStat.astro';
+import RichText from '../RichText.astro';
+import SectionLabel from '../SectionLabel.astro';
+import HeaderMedia from './HeaderMedia.astro';
+import LinkButton from './LinkButton.astro';
+import ProjectBadge from './ProjectBadge.astro';
+
+interface Props {
+  project: Project;
+  detail: ProjectDetail;
+  /** projects.ts 순서(0부터) */
+  index: number;
+}
+
+const { project, detail, index } = Astro.props;
+const number = String(index + 1).padStart(2, '0');
+const stack = detailStack(project, detail);
+const media = detail.headerMedia ?? project.media;
+const { result } = project;
+const hasBadge = project.status === 'in-progress' || !!project.award;
+const roleItems = detail.role.split(', ');
+---
+
+<header class="detail-head">
+  <div class="container detail-grid">
+    <div class="detail-summary">
+      <SectionLabel text={`PROJECT ${number}`} />
+      <p class="detail-period">{formatPeriod(project.period)}</p>
+      <h1 class="detail-name" id="detail-title">{project.name}</h1>
+      {
+        hasBadge && (
+          <div class="detail-badge">
+            <ProjectBadge project={project} />
+          </div>
+        )
+      }
+      <p class="detail-lead"><RichText value={detail.lead} /></p>
+      <p class="detail-oneliner"><RichText value={project.oneLiner} /></p>
+
+      <dl class="facts">
+        <div class="fact">
+          <dt>역할</dt>
+          <dd>
+            {
+              /* 쉼표로 나뉜 역할 항목은 덩어리째 줄을 바꾼다(항목이 한 줄보다 길 때만 안에서 줄바꿈) */
+              roleItems.map((item, i) => (
+                <>
+                  <span class="role-item">{i < roleItems.length - 1 ? `${item},` : item}</span>
+                  {i < roleItems.length - 1 && ' '}
+                </>
+              ))
+            }
+          </dd>
+        </div>
+        {
+          detail.team && (
+            <div class="fact">
+              <dt>팀</dt>
+              <dd>{detail.team}</dd>
+            </div>
+          )
+        }
+        <div class="fact">
+          <dt>기술 스택</dt>
+          <dd class="fact-stack" data-stack="used">
+            {
+              stack.used.map((tech, i) => (
+                <>
+                  <span class="nw">{i < stack.used.length - 1 ? `${tech} ·` : tech}</span>
+                  {i < stack.used.length - 1 && ' '}
+                </>
+              ))
+            }
+          </dd>
+        </div>
+        {
+          stack.planned.length > 0 && (
+            <div class="fact">
+              <dt>사용 예정</dt>
+              <dd class="fact-stack fact-stack--planned" data-stack="planned">
+                {stack.planned.map((tech, i) => (
+                  <>
+                    <span class="nw">{i < stack.planned.length - 1 ? `${tech} ·` : tech}</span>
+                    {i < stack.planned.length - 1 && ' '}
+                  </>
+                ))}
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+
+      {
+        result.kind === 'metric' && (
+          <div class="detail-metric">
+            <MetricStat value={result.value} unit={result.unit} label={result.label} />
+          </div>
+        )
+      }
+
+      {
+        detail.links.length > 0 && (
+          <div class="detail-actions">
+            {detail.links.map((link, i) => (
+              <LinkButton link={link} variant={i === 0 ? 'primary' : 'secondary'} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+
+    <div class="detail-media">
+      <HeaderMedia media={media} name={project.name} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .detail-head {
+    padding-top: var(--space-8);
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: var(--gutter);
+    align-items: center;
+  }
+
+  .detail-summary {
+    grid-column: 1 / span 5;
+    min-width: 0;
+    padding-right: var(--space-5);
+  }
+
+  .detail-media {
+    grid-column: 6 / span 7;
+    min-width: 0;
+  }
+
+  .detail-period {
+    margin-top: var(--space-5);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .detail-name {
+    margin-top: var(--space-1);
+    font-size: var(--display-size);
+    font-weight: var(--display-weight);
+    line-height: var(--display-line);
+    letter-spacing: var(--display-tracking);
+  }
+
+  .detail-badge {
+    margin-top: var(--space-3);
+  }
+
+  .detail-lead {
+    margin-top: var(--space-5);
+    font-size: var(--body-lg-size);
+    font-weight: 500;
+    line-height: var(--body-lg-line);
+    color: var(--ink-primary);
+    text-wrap: pretty;
+  }
+
+  .detail-oneliner {
+    margin-top: var(--space-2);
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .facts {
+    margin-top: var(--space-6);
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .fact {
+    display: grid;
+    grid-template-columns: calc(var(--space-8) + var(--space-2)) minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .fact dt {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--body-line);
+    color: var(--ink-tertiary);
+  }
+
+  .fact dd {
+    font-size: var(--body-size);
+    font-weight: 500;
+    line-height: var(--body-line);
+    color: var(--ink-primary);
+    text-wrap: pretty;
+  }
+
+  .role-item {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  .fact-stack--planned {
+    color: var(--ink-secondary);
+  }
+
+  .detail-metric {
+    margin-top: var(--space-6);
+  }
+
+  .detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  /* 768–1279px: 프로젝트명을 화면 폭에 맞춰 줄인다(5컬럼에서 넘치지 않고, 더 좁은 폭에서 더 커지지 않게) */
+  @media (min-width: 768px) and (max-width: 1279.98px) {
+    .detail-name {
+      font-size: clamp(var(--headline-size), 4.4vw, var(--display-size));
+    }
+  }
+
+  /* 1024px 미만: 세로로 쌓고 미디어를 위에 */
+  @media (max-width: 1023.98px) {
+    .detail-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-7);
+    }
+
+    .detail-summary,
+    .detail-media {
+      grid-column: 1 / -1;
+    }
+
+    .detail-summary {
+      padding-right: 0;
+    }
+
+    .detail-media {
+      order: -1;
+    }
+
+    .detail-summary > :global(*),
+    .facts {
+      max-width: 680px;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .detail-head {
+      padding-top: var(--space-6);
+    }
+
+    .detail-grid {
+      gap: var(--space-6);
+    }
+
+    .detail-name {
+      font-size: var(--display-mobile-size);
+      font-weight: var(--display-mobile-weight);
+      line-height: var(--display-mobile-line);
+      letter-spacing: var(--display-mobile-tracking);
+    }
+
+    .detail-lead {
+      margin-top: var(--space-4);
+    }
+
+    .fact {
+      gap: var(--space-3);
+    }
+
+    /* 버튼 개수와 상관없이 같은 규칙: 전폭으로 세로로 쌓는다 */
+    .detail-actions {
+      flex-direction: column;
+    }
+
+    .detail-actions :global(.btn) {
+      width: 100%;
+    }
+  }
+</style>

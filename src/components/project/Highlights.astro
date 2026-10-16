@@ -1,0 +1,109 @@
+---
+/**
+ * 요약 목록: 원문의 "주요 구현 및 개선" · "트러블슈팅". 헤더 바로 아래 전폭으로 2~3열.
+ * 히어로 keyword-pillar와 같은 문법(위쪽 1px border-strong → 번호 label → 제목 → 설명)이라 카드나 직무 트랙처럼 보이지 않는다.
+ * Moa처럼 케이스가 없는 짧은 상세에서는 이 목록이 본문이다.
+ */
+import type { Highlights } from '../../data/project-details';
+import RichText from '../RichText.astro';
+
+interface Props {
+  highlights: Highlights;
+  id: string;
+}
+
+const { highlights, id } = Astro.props;
+const titleId = `${id}-title`;
+const columns = highlights.items.length >= 3 ? 3 : highlights.items.length;
+---
+
+<section class="highlights" id={id} aria-labelledby={titleId} data-highlights>
+  <div class="container" data-reveal>
+    <h2 class="highlights-title" id={titleId}>{highlights.heading}</h2>
+    <ol class="highlights-list" role="list" style={`--cols: ${columns}`}>
+      {
+        highlights.items.map((item, index) => (
+          <li class="highlight">
+            <span class="highlight-number" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <p class="highlight-title">
+              <RichText value={item.title} />
+            </p>
+            {item.detail && (
+              <p class="highlight-detail">
+                <RichText value={item.detail} />
+              </p>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .highlights {
+    padding-top: var(--space-9);
+  }
+
+  .highlights-title {
+    font-size: var(--title-size);
+    font-weight: var(--title-weight);
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .highlights-list {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+    gap: var(--gutter);
+    margin-top: var(--space-5);
+  }
+
+  .highlight {
+    min-width: 0;
+    padding-top: var(--space-4);
+    border-top: var(--pillar-divider-width) solid var(--border-strong);
+  }
+
+  .highlight-number {
+    display: block;
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .highlight-title {
+    margin-top: var(--space-2);
+    font-size: var(--body-size);
+    font-weight: 600;
+    line-height: var(--body-line);
+    color: var(--ink-primary);
+    text-wrap: pretty;
+  }
+
+  .highlight-detail {
+    margin-top: var(--space-1);
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 1023.98px) {
+    .highlights {
+      padding-top: var(--space-8);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .highlights-list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+    }
+  }
+</style>

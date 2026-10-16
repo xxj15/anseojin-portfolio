@@ -1,0 +1,23 @@
+---
+/**
+ * 조각 텍스트 렌더러. keyword → span.kw, nowrap → span.nw, strong → b.
+ * .kw의 시각 규칙은 쓰는 쪽(Hero)이 정한다.
+ */
+import type { RichText } from '../data/types';
+
+interface Props {
+  value: RichText;
+}
+
+const { value } = Astro.props;
+const segments = typeof value === 'string' ? [value] : value;
+---
+
+{
+  segments.map((segment) => {
+    if (typeof segment === 'string') return segment;
+    if (segment.tone === 'keyword') return <span class="kw">{segment.text}</span>;
+    if (segment.tone === 'nowrap') return <span class="nw">{segment.text}</span>;
+    return <b>{segment.text}</b>;
+  })
+}

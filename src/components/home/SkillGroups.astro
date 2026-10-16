@@ -1,0 +1,261 @@
+---
+/**
+ * Skills: 카테고리별 tech-chip 행 (DESIGN.md Components › Tech chip, EXPERIENCE.md Component Patterns › Tech chip).
+ * - 쓴 프로젝트가 있는 기술: button(기술명 + 프로젝트 수). 누르면 그 행의 칩 아래에 "사용한 프로젝트" 링크 목록이 열린다.
+ *   한 번에 하나만 열리고, 다시 누르거나 Esc로 닫힌다(src/scripts/tech-chip.ts). aria-expanded · aria-controls.
+ * - 쓴 프로젝트가 없는 기술: 펼칠 것이 없으므로 버튼이 아닌 정적 칩(숫자 없음)이다.
+ * - JS가 없으면 목록이 모두 펼쳐진 채로 보인다(html.js일 때만 닫아 둔다).
+ */
+import { skillCategories } from '../../data/profile';
+import { projectPath } from '../../lib/paths';
+import Icon from '../Icon.astro';
+
+const panelId = (skillId: string) => `skill-panel-${skillId}`;
+---
+
+<div class="skill-groups">
+  {
+    skillCategories.map((category) => {
+      const labelId = `skill-group-${category.id}`;
+      const linked = category.skills.filter((skill) => skill.projects.length > 0);
+      return (
+        <div class="skill-group" data-reveal data-skill-group={category.id}>
+          <p class="skill-group-label" id={labelId} lang="en">
+            {category.label}
+          </p>
+          <div class="skill-group-body">
+            <ul class="skill-chips" role="list" aria-labelledby={labelId}>
+              {category.skills.map((skill) => (
+                <li>
+                  {skill.projects.length > 0 ? (
+                    <button
+                      type="button"
+                      class="tech-chip"
+                      aria-expanded="false"
+                      aria-controls={panelId(skill.id)}
+                      data-tech-chip={skill.id}
+                    >
+                      <span class="tech-chip-name" lang="en">
+                        {skill.name}
+                      </span>
+                      <span class="tech-chip-count" aria-hidden="true">
+                        {skill.projects.length}
+                      </span>
+                      <span class="sr-only">, 프로젝트 {skill.projects.length}개</span>
+                    </button>
+                  ) : (
+                    <span class="tech-chip tech-chip--static" lang="en" data-tech-static={skill.id}>
+                      {skill.name}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {linked.map((skill) => (
+              <div class="skill-panel" id={panelId(skill.id)} data-skill-panel>
+                <p class="skill-panel-label">
+                  <span lang="en">{skill.name}</span> · 사용한 프로젝트
+                </p>
+                <ul class="skill-panel-links" role="list">
+                  {skill.projects.map((project) => (
+                    <li>
+                      <a class="skill-panel-link" href={projectPath(project.slug)}>
+                        {project.name}
+                        <Icon name="arrow-right" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    })
+  }
+</div>
+
+<script>
+  import '../../scripts/tech-chip';
+</script>
+
+<style>
+  .skill-group {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    column-gap: var(--gutter);
+    row-gap: var(--space-3);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .skill-group:last-child {
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  /* 칩(36px) 첫 줄의 가운데에 맞춘다 */
+  .skill-group-label {
+    padding-top: calc((36px - var(--caption-size) * var(--caption-line)) / 2);
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .skill-group-body {
+    min-width: 0;
+  }
+
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tech-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 36px;
+    padding: 0 var(--space-4);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-full);
+    background: var(--surface-base);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+    white-space: nowrap;
+  }
+
+  /* 쓴 프로젝트가 없는 기술: 누를 수 없음을 보여 주도록 테두리 없이 surface-subtle 면 (ink-secondary 6.9:1) */
+  .tech-chip--static {
+    border-color: transparent;
+    background: var(--surface-subtle);
+    color: var(--ink-secondary);
+  }
+
+  .tech-chip-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-tertiary);
+  }
+
+  button.tech-chip {
+    transition:
+      background-color var(--duration-nav-indicator) var(--ease-standard),
+      border-color var(--duration-nav-indicator) var(--ease-standard);
+  }
+
+  button.tech-chip[aria-expanded='true'] {
+    background: var(--primary-weak);
+    border-color: var(--primary);
+    color: var(--primary-pressed);
+  }
+
+  button.tech-chip[aria-expanded='true'] .tech-chip-count {
+    color: var(--primary-pressed);
+  }
+
+  @media (hover: hover) {
+    button.tech-chip:hover {
+      border-color: var(--border-strong);
+      color: var(--ink-primary);
+    }
+
+    button.tech-chip[aria-expanded='true']:hover {
+      border-color: var(--primary);
+      color: var(--primary-pressed);
+    }
+  }
+
+  /* JS가 없으면 칩은 눌러도 아무 일이 없으므로 누를 수 있는 모양을 지운다 */
+  :global(html:not(.js)) button.tech-chip {
+    cursor: default;
+  }
+
+  /* ---------- 사용한 프로젝트 목록 ---------- */
+  .skill-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-5);
+    row-gap: var(--space-1);
+    margin-top: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle);
+  }
+
+  :global(html.js) .skill-panel:not(.is-open) {
+    display: none;
+  }
+
+  .skill-panel-label {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .skill-panel-links {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-5);
+  }
+
+  .skill-panel-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 32px;
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+    text-underline-offset: var(--space-1);
+  }
+
+  .skill-panel-link :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-tertiary);
+  }
+
+  @media (hover: hover) {
+    .skill-panel-link:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button.tech-chip {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .skill-group {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-3);
+    }
+
+    .skill-group-label {
+      padding-top: 0;
+    }
+
+    /* 모바일 칩·링크는 높이 44px 이상(EXPERIENCE.md Accessibility Floor) */
+    .tech-chip,
+    .skill-panel-link {
+      min-height: 44px;
+    }
+
+    .skill-panel {
+      column-gap: var(--space-4);
+    }
+
+    .skill-panel-label {
+      flex-basis: 100%;
+      padding-top: var(--space-1);
+    }
+  }
+</style>

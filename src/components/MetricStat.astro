@@ -1,0 +1,75 @@
+---
+/**
+ * metric-stat: metric 숫자(primary) + 같은 줄 title 크기 단위 + caption 설명(ink-tertiary).
+ * DOM 텍스트(.metric-final)는 처음부터 최종값이다. 카운트업은 aria-hidden 레이어에서만 일어난다
+ * (src/scripts/countup.ts, 50% 보일 때 1회, 모션 감소면 생략).
+ */
+import { formatNumber } from '../lib/format';
+
+interface Props {
+  value: number;
+  unit: string;
+  label: string;
+}
+
+const { value, unit, label } = Astro.props;
+---
+
+<div class="metric-stat" data-countup data-countup-value={value}>
+  <p class="metric-value">
+    <span class="metric-number">
+      <span class="metric-final" data-countup-final>{formatNumber(value)}</span>
+      <span class="metric-anim" aria-hidden="true" data-countup-layer></span>
+    </span>
+    <span class="metric-unit">{unit}</span>
+  </p>
+  <p class="metric-label">{label}</p>
+</div>
+
+<script>
+  import '../scripts/countup';
+</script>
+
+<style>
+  .metric-value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-number {
+    position: relative;
+    font-size: var(--metric-size);
+    font-weight: var(--metric-weight);
+    line-height: var(--metric-line);
+    letter-spacing: var(--metric-tracking);
+  }
+
+  /* 카운트업 동안 최종값은 자리만 지키고(스크린리더에는 그대로 읽힘) 애니메이션 레이어가 위에 보인다 */
+  .metric-anim {
+    position: absolute;
+    inset: 0;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .metric-stat:global(.is-counting) .metric-final {
+    opacity: 0;
+  }
+
+  .metric-unit {
+    font-size: var(--title-size);
+    font-weight: var(--title-weight);
+    line-height: var(--title-line);
+  }
+
+  .metric-label {
+    margin-top: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+</style>

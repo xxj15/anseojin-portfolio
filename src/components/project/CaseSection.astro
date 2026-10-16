@@ -1,0 +1,163 @@
+---
+/**
+ * 케이스 섹션: 영문 섹션 라벨(CASE 01 · STEP 01) → h2 제목(headline) → 리드 → case-block을 전체 폭으로 세로로 쌓는다
+ * (DESIGN.md Layout & Spacing · Components › Case block, mockups/project-ourwish.html).
+ * 블록은 surface-subtle 면이고, 짝(pair) 블록은 한 면을 둘로 나눠 나란히 둔다(768px 미만에서는 위아래).
+ * RESULT가 있으면 항상 마지막 블록이다(project-details.ts가 빌드에서 확인).
+ */
+import { isPair, type CaseStudy } from '../../data/project-details';
+import RichText from '../RichText.astro';
+import SectionLabel from '../SectionLabel.astro';
+import CaseBlockBody from './CaseBlockBody.astro';
+
+interface Props {
+  caseStudy: CaseStudy;
+  id: string;
+  name: string;
+}
+
+const { caseStudy, id, name } = Astro.props;
+const titleId = `${id}-title`;
+---
+
+<section class="case" id={id} aria-labelledby={titleId} data-case>
+  <div class="container">
+    <div class="case-head" data-reveal>
+      <SectionLabel text={caseStudy.label} />
+      <h2 class="case-title" id={titleId}>{caseStudy.title}</h2>
+      {
+        caseStudy.lead?.map((paragraph) => (
+          <p class="case-lead">
+            <RichText value={paragraph} />
+          </p>
+        ))
+      }
+    </div>
+
+    <div class="case-rows">
+      {
+        caseStudy.rows.map((row) =>
+          isPair(row) ? (
+            <div class="case-block case-block--pair" data-reveal>
+              <CaseBlockBody block={row.pair[0]} name={name} />
+              <CaseBlockBody block={row.pair[1]} name={name} />
+            </div>
+          ) : (
+            <div class="case-block" data-reveal>
+              <CaseBlockBody block={row} name={name} />
+            </div>
+          ),
+        )
+      }
+    </div>
+
+  </div>
+</section>
+
+<style>
+  /* 케이스는 한 article 안의 장(章)이라 홈 섹션 간격(160)보다 한 단계 좁게 둔다 */
+  .case {
+    padding-top: var(--space-9);
+  }
+
+  .case-head {
+    max-width: 820px;
+  }
+
+  .case-title {
+    margin-top: var(--space-3);
+    font-size: var(--headline-size);
+    font-weight: var(--headline-weight);
+    line-height: var(--headline-line);
+    letter-spacing: var(--headline-tracking);
+    text-wrap: balance;
+  }
+
+  .case-lead {
+    max-width: 680px;
+    margin-top: var(--space-4);
+    font-size: var(--body-lg-size);
+    line-height: var(--body-lg-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .case-lead + .case-lead {
+    margin-top: var(--space-3);
+  }
+
+  .case-lead :global(b) {
+    color: var(--ink-primary);
+  }
+
+  .case-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+  }
+
+  .case-block {
+    min-width: 0;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--surface-subtle);
+  }
+
+  .case-block--pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-block--pair > :global(:first-child) {
+    padding-right: var(--space-6);
+  }
+
+  .case-block--pair > :global(:last-child) {
+    padding-left: var(--space-6);
+    border-left: 1px solid var(--border-hairline);
+  }
+
+  @media (max-width: 767.98px) {
+    .case {
+      padding-top: var(--space-8);
+    }
+
+    .case-title {
+      font-size: var(--headline-mobile-size);
+      font-weight: var(--headline-mobile-weight);
+      line-height: var(--headline-mobile-line);
+      letter-spacing: var(--headline-mobile-tracking);
+    }
+
+    .case-lead {
+      font-size: var(--body-size);
+      line-height: var(--body-line);
+    }
+
+    .case-rows {
+      margin-top: var(--space-6);
+      gap: var(--space-3);
+    }
+
+    .case-block {
+      padding: var(--space-5);
+    }
+
+    .case-block--pair {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .case-block--pair > :global(:first-child) {
+      padding-right: 0;
+      padding-bottom: var(--space-5);
+    }
+
+    .case-block--pair > :global(:last-child) {
+      padding-left: 0;
+      padding-top: var(--space-5);
+      border-left: 0;
+      border-top: 1px solid var(--border-hairline);
+    }
+  }
+</style>

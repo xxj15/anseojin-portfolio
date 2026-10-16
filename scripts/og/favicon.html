@@ -1,0 +1,122 @@
+<!doctype html>
+<!--
+  탭 아이콘 원본(임시, 브랜드 결정 전). render-favicon.cjs가 Edge에서 불러 canvas로 그린다.
+  primary(#406ABF) 둥근 사각형 + 흰 "안"(Pretendard 700). 글자는 잉크 상자를 재서 정확히 가운데에 둔다.
+  점-선-점 모티프는 내비·섹션 라벨 전용이라 쓰지 않는다(DESIGN.md Do's and Don'ts).
+-->
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <title>favicon</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        background: #fff;
+        font-family: 'Pretendard Variable';
+      }
+      .preview {
+        display: flex;
+        gap: 24px;
+        align-items: end;
+        padding: 24px;
+      }
+      .preview.tab {
+        background: #dee1e6;
+      }
+      .preview.dark {
+        background: #202124;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="out"></div>
+    <script>
+      const PRIMARY = '#406ABF';
+      const FONT = "'Pretendard Variable'";
+
+      /**
+       * size: 출력 px, radius: 모서리 반경(폭 대비 비율, 0이면 꽉 찬 사각형),
+       * glyph: 글자 잉크 폭 / 캔버스 폭, scale: 슈퍼샘플링 배수(크게 그린 뒤 절반씩 줄인다)
+       */
+      function draw({ size, radius, glyph, scale = 1 }) {
+        const S = size * scale;
+        const canvas = document.createElement('canvas');
+        canvas.width = S;
+        canvas.height = S;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = PRIMARY;
+        if (radius > 0) {
+          ctx.beginPath();
+          ctx.roundRect(0, 0, S, S, S * radius);
+          ctx.fill();
+        } else {
+          ctx.fillRect(0, 0, S, S);
+        }
+        // 기준 크기에서 잉크 폭을 재서, 잉크 폭이 glyph 비율이 되도록 글자 크기를 정한다
+        ctx.font = `700 100px ${FONT}`;
+        const probe = ctx.measureText('안');
+        const fontSize = (S * glyph * 100) / (probe.actualBoundingBoxLeft + probe.actualBoundingBoxRight);
+        ctx.font = `700 ${fontSize}px ${FONT}`;
+        const m = ctx.measureText('안');
+        const w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+        const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText('안', (S - w) / 2 + m.actualBoundingBoxLeft, (S - h) / 2 + m.actualBoundingBoxAscent);
+        if (scale === 1) return canvas;
+
+        let src = canvas;
+        let current = S;
+        while (current > size) {
+          const next = Math.max(size, Math.round(current / 2));
+          const step = document.createElement('canvas');
+          step.width = next;
+          step.height = next;
+          const stepCtx = step.getContext('2d');
+          stepCtx.imageSmoothingEnabled = true;
+          stepCtx.imageSmoothingQuality = 'high';
+          stepCtx.drawImage(src, 0, 0, next, next);
+          src = step;
+          current = next;
+        }
+        return src;
+      }
+
+      /** specs: { 이름: draw 옵션 } → { 이름: PNG data URL } */
+      window.renderAll = async (specs) => {
+        await document.fonts.load(`700 100px ${FONT}`, '안');
+        await document.fonts.ready;
+        if (![...document.fonts].some((font) => font.status === 'loaded')) throw new Error('Pretendard를 불러오지 못했다');
+        const results = {};
+        for (const [name, spec] of Object.entries(specs)) results[name] = draw(spec).toDataURL('image/png');
+        return results;
+      };
+
+      /** 흰 바탕 · 탭 회색 · 어두운 바탕에서 실제 크기와 4배 확대(180은 실제 크기만)로 늘어놓는다 */
+      window.preview = (urls) => {
+        const out = document.getElementById('out');
+        out.innerHTML = '';
+        for (const tone of ['', 'tab', 'dark']) {
+          const row = document.createElement('div');
+          row.className = `preview ${tone}`;
+          for (const [name, url] of Object.entries(urls)) {
+            const size = Number(/(\d+)$/.exec(name)?.[1] ?? 32);
+            for (const zoom of size > 64 ? [1] : [1, 4]) {
+              const image = new Image();
+              image.src = url;
+              image.title = name;
+              image.style.width = `${size * zoom}px`;
+              image.style.imageRendering = 'pixelated';
+              row.append(image);
+            }
+          }
+          out.append(row);
+        }
+      };
+    </script>
+  </body>
+</html>

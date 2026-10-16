@@ -1,0 +1,128 @@
+/*
+  Design tokens — DESIGN.md(ux-anseojin-portfolio-2026-10-16) frontmatter를 그대로 옮긴다.
+  색·타입·간격·반경·그림자는 이 파일의 custom properties로만 쓴다. 라이트 모드 전용.
+*/
+:root {
+  /* ---------- colors (17) ---------- */
+  --surface-base: #ffffff;
+  --surface-subtle: #f3f5f8;
+  --surface-inverse: #1c2333;
+  --ink-primary: #1c2333;
+  --ink-secondary: #4b5566;
+  --ink-tertiary: #677182;
+  --ink-on-inverse: #eef1f5;
+  --ink-on-inverse-muted: #a9b2c0;
+  --primary: #406abf;
+  --primary-pressed: #33579e;
+  --primary-weak: #eef3fb;
+  --primary-tint: #dfe7f6; /* 히어로 키워드 밑줄 띠 전용 장식색 */
+  --on-primary: #ffffff;
+  --primary-on-inverse: #a3b9e3;
+  --primary-light: #8aa4d8; /* 점-선-점 모티프 전용 장식색 */
+  --border-hairline: #e4e8ee;
+  --border-strong: #ced5df;
+
+  /* ---------- typography ---------- */
+  --font-sans: 'Pretendard Variable', Pretendard, 'Pretendard Fallback', -apple-system, 'Apple SD Gothic Neo',
+    'Malgun Gothic', sans-serif;
+
+  --display-size: 60px;
+  --display-weight: 700;
+  --display-line: 1.22;
+  --display-tracking: -0.03em;
+
+  --display-mobile-size: 34px;
+  --display-mobile-weight: 700;
+  --display-mobile-line: 1.3;
+  --display-mobile-tracking: -0.02em;
+
+  --headline-size: 36px;
+  --headline-weight: 700;
+  --headline-line: 1.3;
+  --headline-tracking: -0.02em;
+
+  --headline-mobile-size: 26px;
+  --headline-mobile-weight: 700;
+  --headline-mobile-line: 1.35;
+  --headline-mobile-tracking: -0.01em;
+
+  --title-lg-size: 24px;
+  --title-lg-weight: 700;
+  --title-lg-line: 1.4;
+  --title-lg-tracking: -0.01em;
+
+  --title-size: 20px;
+  --title-weight: 600;
+  --title-line: 1.45;
+
+  --body-lg-size: 18px;
+  --body-lg-weight: 400;
+  --body-lg-line: 1.7;
+
+  --body-size: 16px;
+  --body-weight: 400;
+  --body-line: 1.7;
+
+  --caption-size: 14px;
+  --caption-weight: 500;
+  --caption-line: 1.5;
+
+  --label-size: 13px;
+  --label-weight: 600;
+  --label-line: 1.4;
+  --label-tracking: 0.08em;
+
+  --metric-size: 40px;
+  --metric-weight: 700;
+  --metric-line: 1.1;
+  --metric-tracking: -0.02em;
+
+  /* ---------- rounded ---------- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* ---------- spacing ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 160px;
+  --container-max: 1200px;
+  --gutter: 24px;
+  --margin-desktop: 40px;
+  --margin-mobile: 20px;
+  --nav-height: 64px;
+
+  /* ---------- elevation (DESIGN.md Elevation & Depth) ---------- */
+  --shadow-hover: 0 16px 40px rgba(28, 35, 51, 0.1);
+  --shadow-toast: 0 8px 24px rgba(28, 35, 51, 0.16);
+  --nav-scrolled-background: rgba(255, 255, 255, 0.92);
+  --nav-scrolled-blur: 12px;
+
+  /* ---------- focus ring ---------- */
+  --focus-color: var(--primary);
+  --focus-color-on-inverse: var(--primary-on-inverse);
+  --focus-width: 2px;
+  --focus-offset: 2px;
+
+  /* ---------- component sizes ---------- */
+  --button-height: 48px;
+  --section-progress-height: 2px;
+  --pillar-divider-width: 1px;
+
+  /* ---------- motion (EXPERIENCE.md Interaction Primitives) ---------- */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-reveal: 480ms;
+  --duration-card: 240ms;
+  --duration-nav-indicator: 200ms;
+  --reveal-distance: 16px;
+  --card-lift: -4px;
+  --card-media-scale: 1.04;
+}

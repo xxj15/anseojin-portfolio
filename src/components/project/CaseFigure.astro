@@ -1,0 +1,312 @@
+---
+/**
+ * case-block 안의 그림.
+ * - diagram: 블록 폭 전체에 맞춘다(확대하지 않음, EXPERIENCE.md Component Patterns › Case block). 흰 면 + hairline.
+ *   768px 미만에서는 글자가 읽히도록 최소 640px(원본이 더 작으면 원본 폭)을 지키고, 그림 영역만 가로로 넘긴다
+ *   (키보드로도 넘길 수 있게 tabindex=0 region + 이름, "옆으로 밀어 보기" 안내). 페이지 전체는 가로로 넘치지 않는다.
+ * - gallery: 세로형 화면 여러 장을 같은 높이로 나란히. 줄이 좁으면 같은 비율로 함께 줄어든다(모바일은 줄바꿈).
+ * - grid: 가로형 캡처를 2~3열 16:10 프레임에 contain으로, 그림마다 caption.
+ * alt에는 흐름 요약을 넣는다(Accessibility Floor). 첫 화면 밖이라 lazy 로드한다.
+ * 이미지 실패: 프레임을 유지하고 가운데에 프로젝트명(src/scripts/image-fallback.ts).
+ */
+import { Image } from 'astro:assets';
+import type { DetailImage } from '../../data/project-details';
+
+interface Props {
+  layout: 'diagram' | 'gallery' | 'grid';
+  images: readonly DetailImage[];
+  note?: string;
+  /** diagram을 블록 폭보다 좁게(가운데) */
+  compact?: boolean;
+  /** 이미지 실패 시 프레임 가운데에 보일 이름 */
+  name: string;
+}
+
+const { layout, images, note, compact = false, name } = Astro.props;
+
+const capped = (list: number[], max: number) => [...new Set(list.map((w) => Math.min(w, max)))];
+
+/** 갤러리 기준 높이(px). 데스크톱 360, 모바일 280(CSS --gallery-height와 같은 값) */
+const GALLERY_HEIGHT = 360;
+const ratio = (image: DetailImage) => image.src.width / image.src.height;
+const gridColumns = images.length === 4 ? 2 : Math.min(images.length, 3);
+/** 가로 스크롤 영역의 이름: label이 없으면 alt의 첫 구절(":" 앞) */
+const diagramLabel = (image: DetailImage) => image.label ?? image.alt.split(':')[0].trim();
+---
+
+{
+  layout === 'diagram' && (
+    <figure class:list={['figure', 'figure--diagram', { 'figure--compact': compact }]}>
+      {images.map((image) => (
+        <div class="diagram-frame" data-media-frame>
+          <div class="diagram-scroller" tabindex="0" role="region" aria-label={diagramLabel(image)} data-diagram-scroller>
+            <Image
+              src={image.src}
+              alt={image.alt}
+              class="figure-image"
+              loading="lazy"
+              decoding="async"
+              style={`--natural-width: ${image.src.width}px`}
+              widths={capped([640, 1120, 2240], image.src.width)}
+              sizes="(min-width: 1280px) 1088px, (min-width: 768px) calc(100vw - 176px), 640px"
+            />
+          </div>
+          <span class="media-fallback" aria-hidden="true">
+            {name}
+          </span>
+        </div>
+      ))}
+      <p class="scroll-hint" data-scroll-hint>
+        옆으로 밀어 보기
+      </p>
+      {note && <figcaption class="figure-note">{note}</figcaption>}
+    </figure>
+  )
+}
+
+{
+  layout === 'gallery' && (
+    <figure class="figure figure--gallery">
+      <div class="gallery" role="list">
+        {images.map((image) => (
+          <div
+            class="gallery-item"
+            role="listitem"
+            style={`--ar: ${ratio(image).toFixed(4)}`}
+            data-media-frame
+          >
+            <Image
+              src={image.src}
+              alt={image.alt}
+              class="figure-image gallery-image"
+              loading="lazy"
+              decoding="async"
+              widths={capped(
+                [Math.round(GALLERY_HEIGHT * ratio(image)), Math.round(GALLERY_HEIGHT * 2 * ratio(image))],
+                image.src.width,
+              )}
+              sizes={`${Math.round(GALLERY_HEIGHT * ratio(image))}px`}
+            />
+            <span class="media-fallback" aria-hidden="true">
+              {name}
+            </span>
+          </div>
+        ))}
+      </div>
+      {note && <figcaption class="figure-note">{note}</figcaption>}
+    </figure>
+  )
+}
+
+{
+  layout === 'grid' && (
+    <figure class="figure figure--grid">
+      <ul class="shot-grid" role="list" style={`--cols: ${gridColumns}`}>
+        {images.map((image) => (
+          <li class="shot">
+            <div class="shot-frame" data-media-frame>
+              <Image
+                src={image.src}
+                alt={image.alt}
+                class="figure-image shot-image"
+                loading="lazy"
+                decoding="async"
+                widths={capped([480, 960, 1600], image.src.width)}
+                sizes={
+                  gridColumns >= 3
+                    ? '(min-width: 1280px) 340px, (min-width: 768px) 30vw, calc(100vw - 90px)'
+                    : '(min-width: 1280px) 520px, (min-width: 768px) 45vw, calc(100vw - 90px)'
+                }
+              />
+              <span class="media-fallback" aria-hidden="true">
+                {name}
+              </span>
+            </div>
+            {image.caption && <p class="shot-caption">{image.caption}</p>}
+          </li>
+        ))}
+      </ul>
+      {note && <figcaption class="figure-note">{note}</figcaption>}
+    </figure>
+  )
+}
+
+<script>
+  import '../../scripts/image-fallback';
+</script>
+
+<style>
+  .figure {
+    min-width: 0;
+  }
+
+  /* ---------- diagram ---------- */
+  .figure--diagram {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .diagram-frame {
+    position: relative;
+    padding: var(--space-5);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    background: var(--surface-base);
+  }
+
+  .figure--compact .diagram-frame :global(.figure-image) {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .diagram-frame :global(.figure-image) {
+    width: 100%;
+    height: auto;
+  }
+
+  .diagram-scroller {
+    min-width: 0;
+  }
+
+  /* 768px 미만에서만 보인다 */
+  .scroll-hint {
+    display: none;
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  /* ---------- gallery: 같은 높이, 좁으면 함께 줄어듦 ---------- */
+  .gallery {
+    --gallery-height: 360px;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  .gallery-item {
+    position: relative;
+    flex: 0 1 calc(var(--gallery-height) * var(--ar));
+    min-width: 0;
+  }
+
+  .gallery-item :global(.gallery-image) {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    outline: 1px solid color-mix(in srgb, var(--ink-primary) 8%, transparent);
+    background: var(--surface-base);
+  }
+
+  /* ---------- grid: 16:10 프레임 + caption ---------- */
+  .shot-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+    gap: var(--space-5) var(--space-4);
+  }
+
+  .shot {
+    min-width: 0;
+  }
+
+  .shot-frame {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 10;
+    padding: var(--space-3);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    background: var(--surface-base);
+    overflow: hidden;
+  }
+
+  .shot-frame :global(.shot-image) {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    border-radius: var(--radius-sm);
+  }
+
+  .shot-caption {
+    margin-top: var(--space-2);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .figure-note {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .figure--gallery .figure-note,
+  .figure--grid .figure-note {
+    margin-top: var(--space-4);
+  }
+
+  /* ---------- 이미지 실패 ---------- */
+  .media-fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+    text-align: center;
+  }
+
+  [data-media-frame]:global(.is-media-failed) :global(.figure-image) {
+    opacity: 0;
+  }
+
+  [data-media-frame]:global(.is-media-failed) .media-fallback {
+    display: flex;
+  }
+
+  @media (max-width: 1023.98px) {
+    .shot-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .diagram-frame {
+      padding: var(--space-3);
+    }
+
+    /* 좁은 폭에서는 다이어그램 글자가 읽히는 크기를 지키고 그림 영역만 가로로 넘긴다 */
+    .diagram-scroller {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+    }
+
+    .diagram-scroller :global(.figure-image) {
+      min-width: min(640px, var(--natural-width, 640px));
+    }
+
+    .scroll-hint {
+      display: block;
+    }
+
+    .gallery {
+      --gallery-height: 280px;
+      flex-wrap: wrap;
+    }
+
+    .shot-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

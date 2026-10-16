@@ -1,0 +1,242 @@
+---
+/**
+ * 히어로 = 시안 A(한 문장) + B(세 개의 기둥). DESIGN.md Components › Hero · Keyword pillar.
+ * - 위: 왼쪽 8컬럼 폭에 눈썹 + h1(54px, 히어로 전용 크기). 오른쪽 4컬럼은 비워 둔다(보조 문장 없음).
+ *   보조 문장 · CTA 버튼 · 칩(수상·조회수·강점)은 두지 않는다(사용자 결정 2026-10-16: 첫 화면이 과하다).
+ * - 아래 전폭 keyword-pillar 3개(ol): 01 기획 · 02 UI/UX 디자인 · 03 개발. 기둥 제목은 h2·h3가 아닌 강조 텍스트다.
+ *   h1 강조어(기획 · UI/UX 디자인 · 사용자 경험)와 03은 일부러 다르다(사용자 결정).
+ * - 리빌: JS가 html.js를 붙였을 때만, 첫 로드에 줄 단위로 60ms 간격(총 900ms 이하). 모션 감소면 즉시 표시.
+ */
+import { hero } from '../data/site';
+import RichText from './RichText.astro';
+
+const line = (index: number) => `--line: ${index}`;
+const headlineStart = 1;
+const pillarsLine = headlineStart + hero.headlineLines.length;
+---
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-id">
+      <p class="hero-eyebrow" data-hero-line style={line(0)}>
+        {hero.eyebrow[0]}<span class="hero-eyebrow-gap">{' '}</span><span class="hero-eyebrow-dot" aria-hidden="true"
+          >·</span
+        ><span class="hero-eyebrow-gap">{' '}</span><span lang="en">{hero.eyebrow[1]}</span>
+      </p>
+      <h1 class="hero-title" id="hero-title">
+        {
+          hero.headlineLines.map((segments, index) => (
+            <>
+              <span class="hero-line" data-hero-line style={line(headlineStart + index)}>
+                <RichText value={segments} />
+              </span>
+              {index < hero.headlineLines.length - 1 && ' '}
+            </>
+          ))
+        }
+      </h1>
+    </div>
+
+    <ol class="pillars" role="list" aria-label="세 가지 키워드의 근거" data-hero-line style={line(pillarsLine)}>
+      {
+        hero.pillars.map((pillar) => (
+          <li class="pillar">
+            <span class="pillar-number">{pillar.number}</span>
+            <strong class="pillar-title">{pillar.title}</strong>
+            <p class="pillar-body">
+              <RichText value={pillar.body} />
+            </p>
+            <p class="pillar-related">
+              <span class="pillar-related-label">관련</span>
+              <span>{pillar.related.join(' · ')}</span>
+            </p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /*
+    h1 크기는 히어로 전용이다(사용자 결정 2026-10-16: 60 → 54px). 공용 --display-size(60px)는 상세 페이지 제목이 그대로 쓴다.
+    행간 1.22 · 자간 -0.03em은 display 토큰 그대로.
+  */
+  .hero {
+    --hero-title-size: 54px;
+    padding-block: var(--space-9) var(--space-8);
+  }
+
+  /* 12컬럼 중 왼쪽 8컬럼 폭(예전 2단 그리드의 왼쪽 단과 같은 폭). 오른쪽 4컬럼은 빈 여백으로 둔다. */
+  .hero-id {
+    max-width: calc((100% - 11 * var(--gutter)) * 8 / 12 + 7 * var(--gutter));
+  }
+
+  .hero-eyebrow {
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    color: var(--ink-secondary);
+  }
+
+  /* 눈썹 두 부분 사이의 실제 공백(스크린리더·복사용 단어 경계). 폭은 예전 여백과 같은 8px로 고정한다. */
+  .hero-eyebrow-gap {
+    display: inline-block;
+    width: var(--space-2);
+    white-space: pre;
+    letter-spacing: 0;
+  }
+
+  .hero-eyebrow-dot {
+    color: var(--border-strong);
+  }
+
+  .hero-title {
+    margin-top: var(--space-5);
+    font-size: var(--hero-title-size);
+    font-weight: var(--display-weight);
+    line-height: var(--display-line);
+    letter-spacing: var(--display-tracking);
+    color: var(--ink-primary);
+  }
+
+  .hero-line {
+    display: block;
+  }
+
+  /* 강조 키워드: primary + 형광펜 모양 primary-tint 밑줄 띠(사용자 결정). 키워드 안에서는 줄을 바꾸지 않는다. */
+  .hero-title :global(.kw) {
+    color: var(--primary);
+    white-space: nowrap;
+    background: linear-gradient(
+      transparent 74%,
+      var(--primary-tint) 74%,
+      var(--primary-tint) 92%,
+      transparent 92%
+    );
+  }
+
+  /* ---------- keyword pillars: 같은 선·같은 색, 아이콘·면·테두리 없음 ---------- */
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--gutter);
+    margin-top: calc(var(--space-8) + var(--space-4)); /* 80px, V2 여백(사용자 결정) */
+  }
+
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--space-5);
+    border-top: var(--pillar-divider-width) solid var(--border-strong);
+  }
+
+  .pillar-number {
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+  }
+
+  .pillar-title {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--title-lg-size);
+    font-weight: var(--title-lg-weight);
+    line-height: var(--title-lg-line);
+    letter-spacing: var(--title-lg-tracking);
+    color: var(--ink-primary);
+  }
+
+  .pillar-body {
+    margin-top: var(--space-2);
+    max-width: 372px;
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-secondary);
+    text-wrap: balance;
+  }
+
+  .pillar-related {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: auto;
+    padding-top: var(--space-3);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+  }
+
+  .pillar-related-label {
+    flex: none;
+    color: var(--ink-tertiary);
+  }
+
+  /* ---------- 첫 로드 리빌(줄 단위) ---------- */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) [data-hero-line] {
+      animation: hero-reveal var(--duration-reveal) var(--ease-standard) both;
+      animation-delay: calc(var(--line, 0) * 60ms);
+    }
+  }
+
+  @keyframes hero-reveal {
+    from {
+      opacity: 0;
+      translate: 0 var(--reveal-distance);
+    }
+
+    to {
+      opacity: 1;
+      translate: none;
+    }
+  }
+
+  /* ---------- 768–1279px: h1 단 폭이 좁아지면 글자 크기를 단 폭에 맞춰 세 줄 구성을 지킨다 ----------
+     가장 긴 줄(1행)은 60px에서 약 757px → 60/757 ≈ 7.93cqi, 폴백 서체 오차를 두고 7.7cqi. 최대는 히어로 크기(54px). */
+  @media (min-width: 768px) and (max-width: 1279.98px) {
+    .hero-id {
+      container-type: inline-size;
+    }
+
+    .hero-title {
+      font-size: clamp(var(--display-mobile-size), 7.7cqi, var(--hero-title-size));
+    }
+  }
+
+  /* ---------- 1023px 이하: h1 단을 전폭으로(예전과 같이 768–1023에서 h1이 단 폭에 맞춰 커진다), 기둥 3열 유지 ---------- */
+  @media (max-width: 1023.98px) {
+    .hero-id {
+      max-width: none;
+    }
+  }
+
+  /* ---------- 768px 미만: display-mobile, 기둥 세로 쌓기 ---------- */
+  @media (max-width: 767.98px) {
+    .hero {
+      padding-block: var(--space-7) var(--space-6);
+    }
+
+    .hero-title {
+      margin-top: var(--space-4);
+      font-size: var(--display-mobile-size);
+      font-weight: var(--display-mobile-weight);
+      line-height: var(--display-mobile-line);
+      letter-spacing: var(--display-mobile-tracking);
+    }
+
+    .pillars {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-6);
+      margin-top: var(--space-7);
+    }
+
+    .pillar-body {
+      max-width: none;
+    }
+  }
+</style>

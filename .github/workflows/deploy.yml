@@ -1,0 +1,57 @@
+# GitHub Pages 배포: main에 push하거나 Actions 탭에서 직접 실행하면 빌드해서 올린다.
+# 저장소 Settings › Pages › Build and deployment › Source를 "GitHub Actions"로 한 번 바꿔 둬야 한다.
+# 사이트 주소: https://xxj15.github.io/anseojin-portfolio/ (base는 ASTRO_BASE, 도메인은 astro.config.mjs의 site)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포는 한 번에 하나만. 진행 중인 배포는 끊지 않고 다음 실행이 기다린다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # prebuild(scripts/copy-pdf.mjs)가 저장소 루트의 anseojin-portfolio.pdf를 public/으로 복사한다.
+      - name: Build
+        run: npm run build
+        env:
+          ASTRO_BASE: /anseojin-portfolio
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

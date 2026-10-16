@@ -1,0 +1,184 @@
+---
+/**
+ * project-pager: 상세 하단 2칸. projects.ts 순서(최신순)로 이전/다음 프로젝트로 가며 순환하지 않는다.
+ * 양 끝에서는 비는 쪽 칸을 "전체 프로젝트"로 바꾼다(EXPERIENCE.md Component Patterns › Project pager).
+ * 이 칸은 홈 Projects의 이 프로젝트 카드(li#project-<slug>)로 돌아간다(State Patterns › 상세에서 홈으로 복귀).
+ * hover(hover 가능한 기기) · focus-visible: 테두리 border-strong + hover 그림자, 이동 없음(Interaction Primitives › Pager hover).
+ */
+import { projects, type ProjectSlug } from '../../data/projects';
+import { projectPath, withBase } from '../../lib/paths';
+import Icon from '../Icon.astro';
+
+interface Props {
+  slug: ProjectSlug;
+}
+
+const { slug } = Astro.props;
+const index = projects.findIndex((project) => project.slug === slug);
+const prev = index > 0 ? projects[index - 1] : undefined;
+const next = index < projects.length - 1 ? projects[index + 1] : undefined;
+
+interface Cell {
+  side: 'prev' | 'next';
+  kind: 'project' | 'all';
+  href: string;
+  caption: string;
+  name: string;
+}
+
+const allCell = (side: Cell['side']): Cell => ({
+  side,
+  kind: 'all',
+  href: withBase(`/#project-${slug}`),
+  caption: `${projects.length}개 프로젝트`,
+  name: '전체 프로젝트',
+});
+
+const cells: Cell[] = [
+  prev
+    ? { side: 'prev', kind: 'project', href: projectPath(prev.slug), caption: '이전 프로젝트', name: prev.name }
+    : allCell('prev'),
+  next
+    ? { side: 'next', kind: 'project', href: projectPath(next.slug), caption: '다음 프로젝트', name: next.name }
+    : allCell('next'),
+];
+---
+
+<nav class="pager" aria-label="프로젝트 이동" data-reveal>
+  {
+    cells.map((cell) => (
+      <a class:list={['pager-link', `pager-link--${cell.side}`]} href={cell.href} data-pager={cell.side} data-pager-kind={cell.kind}>
+        <span class="pager-icon" aria-hidden="true">
+          {cell.kind === 'all' ? (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              focusable="false"
+            >
+              <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
+              <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5" />
+              <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5" />
+              <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5" />
+            </svg>
+          ) : (
+            <Icon name="arrow-right" class={cell.side === 'prev' ? 'pager-arrow--back' : undefined} />
+          )}
+        </span>
+        <span class="pager-text">
+          <span class="pager-caption">{cell.caption}</span>
+          <span class="pager-name">{cell.name}</span>
+        </span>
+      </a>
+    ))
+  }
+</nav>
+
+<style>
+  .pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+    margin-top: var(--space-9);
+  }
+
+  .pager-link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    min-width: 0;
+    padding: var(--space-6);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--surface-base);
+    color: var(--ink-primary);
+    transition:
+      border-color var(--duration-card) var(--ease-standard),
+      box-shadow var(--duration-card) var(--ease-standard);
+  }
+
+  .pager-link--next {
+    flex-direction: row-reverse;
+    text-align: right;
+  }
+
+  .pager-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+    background: var(--surface-subtle);
+    color: var(--ink-secondary);
+    transition: color var(--duration-card) var(--ease-standard);
+  }
+
+  .pager-icon :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pager-icon :global(.pager-arrow--back) {
+    transform: scaleX(-1);
+  }
+
+  .pager-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .pager-caption {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .pager-name {
+    margin-top: calc(var(--space-1) / 2);
+    font-size: var(--title-size);
+    font-weight: var(--title-weight);
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+    overflow-wrap: anywhere;
+  }
+
+  .pager-link:focus-visible {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .pager-link:focus-visible .pager-icon {
+    color: var(--primary);
+  }
+
+  @media (hover: hover) {
+    .pager-link:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .pager-link:hover .pager-icon {
+      color: var(--primary);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .pager {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+      margin-top: var(--space-8);
+    }
+
+    .pager-link {
+      padding: var(--space-5);
+      gap: var(--space-4);
+    }
+  }
+</style>

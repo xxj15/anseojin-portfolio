@@ -1,0 +1,484 @@
+---
+/**
+ * Home · Experience(#experience): Skills 칩 그룹 → 개발 경험 timeline-row(DAILY TICK · 데이터베이스시스템 프로젝트 · 싸피레이스).
+ * 각 행은 요약(설명 · 역할 · 핵심 성과 · 기술 스택 · 링크)을 기본으로 보이고,
+ * DAILY TICK의 파이프라인·검증 표는 "자세히 보기" 토글 뒤에 둔다(src/scripts/timeline-toggle.ts).
+ * 싸피레이스는 기술 경험으로만 둔다. 배지·트로피를 붙이지 않는다(사용자 결정).
+ */
+import { experiences } from '../../data/profile';
+import Icon from '../Icon.astro';
+import ExternalLink from './ExternalLink.astro';
+import HomeSection from './HomeSection.astro';
+import SkillGroups from './SkillGroups.astro';
+import Subsection from './Subsection.astro';
+import TimelineRow from './TimelineRow.astro';
+
+const LABEL_CLOSED = '자세히 보기';
+const LABEL_OPEN = '접기';
+---
+
+<HomeSection id="experience" label="EXPERIENCE" title="기술 경험">
+  <Subsection title="기술 스택" id="skills">
+    <SkillGroups />
+  </Subsection>
+
+  <Subsection title="개발 경험" id="dev-experience">
+    <ol class="exp-list" role="list">
+      {
+        experiences.map((entry) => {
+          const titleId = `exp-${entry.id}-title`;
+          const detailsId = `exp-${entry.id}-details`;
+          return (
+            <TimelineRow meta={entry.meta} id={`exp-${entry.id}`}>
+              <h4 class="exp-title" id={titleId}>
+                {entry.title}
+              </h4>
+              <dl class="exp-facts">
+                <div class="exp-fact">
+                  <dt>설명</dt>
+                  <dd class="exp-description">{entry.description}</dd>
+                </div>
+                {entry.role && (
+                  <div class="exp-fact">
+                    <dt>역할</dt>
+                    <dd>{entry.role}</dd>
+                  </div>
+                )}
+                <div class="exp-fact">
+                  <dt>핵심 성과</dt>
+                  <dd>
+                    <ul class="bullets" role="list">
+                      {entry.outcomes.map((outcome) => (
+                        <li>{outcome}</li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+                <div class="exp-fact">
+                  <dt>기술 스택</dt>
+                  <dd class="exp-stack">
+                    {
+                      /* 카드 스택과 같은 방식: 기술명은 쪼개지지 않게, 구분점은 앞 항목에 붙여 줄 첫머리에 "·"가 오지 않게 한다 */
+                      entry.stack.map((tech, index) => {
+                        const last = index === entry.stack.length - 1;
+                        return (
+                          <>
+                            <span class="nw" lang="en">
+                              {last ? tech : `${tech} ·`}
+                            </span>
+                            {!last && ' '}
+                          </>
+                        );
+                      })
+                    }
+                  </dd>
+                </div>
+                {entry.links.length > 0 && (
+                  <div class="exp-fact">
+                    <dt>링크</dt>
+                    <dd>
+                      <ul class="exp-links" role="list">
+                        {entry.links.map((link) => (
+                          <li>
+                            <ExternalLink href={link.href} label={link.label} />
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </div>
+                )}
+              </dl>
+
+              {entry.details && (
+                <div class="exp-more">
+                  <button
+                    type="button"
+                    class="details-toggle"
+                    aria-expanded="false"
+                    aria-controls={detailsId}
+                    data-timeline-toggle
+                    data-label-closed={LABEL_CLOSED}
+                    data-label-open={LABEL_OPEN}
+                  >
+                    <span data-toggle-label>{LABEL_CLOSED}</span>
+                    <Icon name="chevron-down" />
+                    <span class="sr-only">: {entry.title} 파이프라인 · 검증 표</span>
+                  </button>
+
+                  <div class="exp-details" id={detailsId} data-timeline-details>
+                    <div class="case-block">
+                      <p class="case-label" lang="en">
+                        <span class="case-number">01</span> {entry.details.pipeline.label}
+                      </p>
+                      <p class="case-summary">{entry.details.pipeline.summary}</p>
+                      <ol class="pipeline" role="list" aria-label="브리핑 생성 순서">
+                        {entry.details.pipeline.steps.map((step, index) => (
+                          <li class="pipeline-step">
+                            <span class="pipeline-index" aria-hidden="true">
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <strong class="pipeline-name" lang="en">
+                              {step.name}
+                            </strong>
+                            {step.note && <span class="pipeline-note">{step.note}</span>}
+                          </li>
+                        ))}
+                      </ol>
+                      <ul class="pipeline-notes" role="list">
+                        {entry.details.pipeline.notes.map((note) => (
+                          <li>{note}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div class="case-block">
+                      <p class="case-label" lang="en">
+                        <span class="case-number">02</span> {entry.details.validation.label}
+                      </p>
+                      <p class="case-summary">{entry.details.validation.summary}</p>
+                      <div class="table-wrap">
+                        <table class="validation-table">
+                          <thead>
+                            <tr>
+                              <th scope="col">검증 범위</th>
+                              <th scope="col">처리</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {entry.details.validation.rows.map((row) => (
+                              <tr>
+                                <th scope="row">{row.scope}</th>
+                                <td>{row.handling}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </TimelineRow>
+          );
+        })
+      }
+    </ol>
+  </Subsection>
+</HomeSection>
+
+<script>
+  import '../../scripts/timeline-toggle';
+</script>
+
+<style>
+  /* 왼쪽 caption을 오른쪽 제목(title-lg) 첫 줄 가운데에 맞춘다 */
+  .exp-list {
+    --timeline-meta-offset: calc(
+      (var(--title-lg-size) * var(--title-lg-line) - var(--caption-size) * var(--caption-line)) / 2
+    );
+  }
+
+  .exp-title {
+    font-size: var(--title-lg-size);
+    font-weight: var(--title-lg-weight);
+    line-height: var(--title-lg-line);
+    letter-spacing: var(--title-lg-tracking);
+    color: var(--ink-primary);
+  }
+
+  .exp-facts {
+    display: grid;
+    row-gap: var(--space-3);
+    max-width: calc(680px + var(--space-9) + var(--gutter));
+    margin-top: var(--space-4);
+  }
+
+  .exp-fact {
+    display: grid;
+    grid-template-columns: var(--space-9) minmax(0, 1fr);
+    column-gap: var(--gutter);
+  }
+
+  .exp-fact dt {
+    padding-top: calc((var(--body-size) * var(--body-line) - var(--caption-size) * var(--caption-line)) / 2);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .exp-fact dd {
+    min-width: 0;
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .exp-fact dd.exp-description {
+    color: var(--ink-primary);
+  }
+
+  .bullets li {
+    position: relative;
+    padding-left: var(--space-4);
+  }
+
+  .bullets li + li {
+    margin-top: var(--space-1);
+  }
+
+  .bullets li::before {
+    content: '';
+    position: absolute;
+    left: var(--space-1);
+    top: calc(var(--body-size) * var(--body-line) / 2 - 2px);
+    width: 4px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--border-strong);
+  }
+
+  /* 스택은 caption 크기로, 줄 높이는 본문 한 줄에 맞춰 왼쪽 dt와 같은 선에 놓는다 */
+  .exp-fact dd.exp-stack {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: calc(var(--body-size) * var(--body-line));
+  }
+
+  .exp-links {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-5);
+    margin-top: calc((var(--body-size) * var(--body-line) - 32px) / 2);
+  }
+
+  /* ---------- 자세히 보기 ---------- */
+  .exp-more {
+    margin-top: var(--space-4);
+    padding-left: calc(var(--space-9) + var(--gutter));
+  }
+
+  /* primary 텍스트 + 셰브런 16px, 테두리 없음 (DESIGN.md Components › Timeline row) */
+  .details-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 32px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-size);
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--primary);
+  }
+
+  .details-toggle :global(svg) {
+    width: 16px;
+    height: 16px;
+  }
+
+  .details-toggle[aria-expanded='true'] :global(svg) {
+    transform: rotate(180deg);
+  }
+
+  @media (hover: hover) {
+    .details-toggle:hover {
+      color: var(--primary-pressed);
+    }
+  }
+
+  /* JS가 없으면 상세는 처음부터 보이고, 토글 버튼은 동작하지 않으므로 숨긴다 */
+  :global(html:not(.js)) .details-toggle {
+    display: none;
+  }
+
+  :global(html.js) .exp-details:not(.is-open) {
+    display: none;
+  }
+
+  .exp-details {
+    display: grid;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+  }
+
+  :global(html:not(.js)) .exp-details {
+    margin-top: 0;
+  }
+
+  @media print {
+    :global(html.js) .exp-details:not(.is-open) {
+      display: grid;
+    }
+  }
+
+  .case-block {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    background: var(--surface-subtle);
+  }
+
+  .case-label {
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+
+  .case-number {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .case-summary {
+    margin-top: var(--space-2);
+    color: var(--ink-primary);
+    font-weight: 600;
+    text-wrap: pretty;
+  }
+
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+    gap: var(--space-2);
+    margin-top: var(--space-5);
+  }
+
+  .pipeline-step {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-sm);
+    background: var(--surface-base);
+  }
+
+  .pipeline-index {
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    font-variant-numeric: tabular-nums;
+    color: var(--primary);
+  }
+
+  .pipeline-name {
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+    overflow-wrap: anywhere;
+  }
+
+  .pipeline-note {
+    font-size: var(--caption-size);
+    font-weight: 400;
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .pipeline-notes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .pipeline-notes li {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    background: var(--surface-base);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .table-wrap {
+    margin-top: var(--space-5);
+    border-radius: var(--radius-sm);
+    background: var(--surface-base);
+    border: 1px solid var(--border-hairline);
+    overflow: hidden;
+  }
+
+  .validation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--caption-size);
+    line-height: var(--caption-line);
+    text-align: left;
+  }
+
+  .validation-table th,
+  .validation-table td {
+    padding: var(--space-3) var(--space-4);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  .validation-table thead th {
+    font-weight: 600;
+    color: var(--ink-tertiary);
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .validation-table tbody tr + tr > * {
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .validation-table tbody th {
+    width: 28%;
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  .validation-table td {
+    font-weight: 400;
+    color: var(--ink-secondary);
+  }
+
+  @media (max-width: 1023.98px) {
+    .exp-more {
+      padding-left: 0;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .exp-list {
+      --timeline-meta-offset: 0px;
+    }
+
+    .exp-fact {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-1);
+    }
+
+    .exp-fact dt {
+      padding-top: 0;
+    }
+
+    .exp-links {
+      margin-top: 0;
+    }
+
+    .details-toggle {
+      min-height: 44px;
+    }
+
+    .case-block {
+      padding: var(--space-5);
+    }
+
+    .pipeline {
+      grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    }
+
+    .validation-table th,
+    .validation-table td {
+      padding: var(--space-3);
+    }
+  }
+</style>

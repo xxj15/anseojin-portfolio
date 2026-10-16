@@ -1,0 +1,418 @@
+---
+/**
+ * project-card: 카드 전체가 링크 하나다(카드 안에 다른 링크 없음).
+ * 슬롯 순서: 16:10 미디어 → 기간 → 이름 → award-badge 자리(없으면 같은 높이 빈칸) → 한 줄 → 역할 → 성과 슬롯 → 스택(하단 고정).
+ * hover(hover 가능한 기기)·focus-visible: 미디어 ×1.04, 카드 −4px, border-strong, hover 그림자(240ms).
+ * 이미지 실패: 프레임을 유지하고 가운데에 프로젝트명을 보인다(src/scripts/image-fallback.ts).
+ */
+import { Image } from 'astro:assets';
+import { formatPeriod, type Project } from '../data/projects';
+import { projectPath } from '../lib/paths';
+import Icon from './Icon.astro';
+import MetricStat from './MetricStat.astro';
+import RichText from './RichText.astro';
+
+interface Props {
+  project: Project;
+  /** 첫 화면에 걸치는 카드(첫 행)는 즉시 로드한다. */
+  eager?: boolean;
+}
+
+const { project, eager = false } = Astro.props;
+const { result } = project;
+const nameId = `card-${project.slug}-name`;
+const summaryId = `card-${project.slug}-summary`;
+const hasBadge = project.status === 'in-progress' || !!project.award;
+
+/** 가로형 캡처와 세로형 기기 화면은 프레임 안에서 보이는 폭이 달라 srcset 기준을 나눈다. */
+const imageSizing = (image: Project['media']['images'][number]) =>
+  image.src.height > image.src.width
+    ? { widths: [180, 360, image.src.width], sizes: '(min-width: 768px) 176px, 30vw' }
+    : { widths: [480, 960, image.src.width], sizes: '(min-width: 768px) 508px, calc(100vw - 40px)' };
+---
+
+<a
+  class="card"
+  href={projectPath(project.slug)}
+  data-card={project.slug}
+  aria-labelledby={nameId}
+  aria-describedby={summaryId}
+>
+  <div class:list={['card-media', { 'card-media--inset-small': project.media.inset === 'small' }]} data-media-frame>
+    {
+      project.media.images.map((image) => (
+        <Image
+          src={image.src}
+          alt={image.alt}
+          class={`card-image card-image--${image.kind}`}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+          {...imageSizing(image)}
+        />
+      ))
+    }
+    <span class="card-media-fallback" aria-hidden="true">{project.name}</span>
+  </div>
+
+  <div class="card-body">
+    <p class="card-period">{formatPeriod(project.period)}</p>
+    <h3 class="card-name" id={nameId}>{project.name}</h3>
+    <div class:list={['card-badge-slot', { 'card-badge-slot--empty': !hasBadge }]}>
+      {
+        project.status === 'in-progress' ? (
+          <span class="status-pill">진행 중</span>
+        ) : project.award ? (
+          <span class="award-badge">
+            <Icon name="trophy" strokeWidth={2.2} />
+            <span class="award-badge-text">{project.award}</span>
+          </span>
+        ) : null
+      }
+    </div>
+    <p class="card-oneliner" id={summaryId}><RichText value={project.oneLiner} /></p>
+    <p class="card-role"><span class="card-role-label">역할</span><span>{project.role}</span></p>
+
+    <div class="card-result">
+      <div class="card-result-inner">
+        {
+          result.kind === 'metric' ? (
+            <MetricStat value={result.value} unit={result.unit} label={result.label} />
+          ) : (
+            <div class="outcome">
+              <p class="outcome-text">{result.text}</p>
+              <p class="outcome-detail">
+                <RichText value={result.detail} />
+              </p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <p class="card-stack">
+      <span>
+        {
+          /* 기술명은 쪼개지지 않게, 구분점은 앞 항목에 붙여 줄 첫머리에 "·"가 오지 않게 한다 */
+          project.stack.map((tech, index) => {
+            const last = index === project.stack.length - 1;
+            return (
+              <>
+                <span class="nw">{last ? tech : `${tech} ·`}</span>
+                {!last && ' '}
+              </>
+            );
+          })
+        }
+      </span>
+      <Icon name="arrow-right" class="card-arrow" />
+    </p>
+  </div>
+</a>
+
+<script>
+  import '../scripts/image-fallback';
+</script>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    padding: var(--space-2);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-lg);
+    background: var(--surface-base);
+    color: var(--ink-primary);
+    transition:
+      transform var(--duration-card) var(--ease-standard),
+      box-shadow var(--duration-card) var(--ease-standard),
+      border-color var(--duration-card) var(--ease-standard);
+  }
+
+  /* ---------- 16:10 미디어 프레임 ---------- */
+  .card-media {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    aspect-ratio: 16 / 10;
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    background: var(--surface-subtle);
+    overflow: hidden;
+  }
+
+  .card-media--inset-small {
+    padding: var(--space-4);
+  }
+
+  .card-media :global(.card-image) {
+    min-width: 0;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    transition: transform var(--duration-card) var(--ease-standard);
+  }
+
+  .card-media :global(.card-image--shot) {
+    border-radius: var(--radius-sm);
+    outline: 1px solid color-mix(in srgb, var(--ink-primary) 6%, transparent);
+  }
+
+  .card-media :global(.card-image--device) {
+    mix-blend-mode: multiply;
+  }
+
+  .card-media-fallback {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+    text-align: center;
+  }
+
+  .card-media:global(.is-media-failed) :global(.card-image) {
+    opacity: 0;
+  }
+
+  .card-media:global(.is-media-failed) .card-media-fallback {
+    display: flex;
+  }
+
+  /* ---------- 텍스트 슬롯 (카드 가장자리에서 32px) ---------- */
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-5);
+  }
+
+  .card-period {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .card-name {
+    margin-top: var(--space-1);
+    font-size: var(--title-lg-size);
+    font-weight: var(--title-lg-weight);
+    line-height: var(--title-lg-line);
+    letter-spacing: var(--title-lg-tracking);
+  }
+
+  /* 배지 자리: 수상이 없어도 같은 높이를 비워 같은 행 카드끼리 한 줄 슬롯 위치를 맞춘다 */
+  .card-badge-slot {
+    --badge-height: calc(var(--caption-size) * var(--caption-line) + var(--space-1) * 2);
+    display: flex;
+    align-items: flex-start;
+    min-height: var(--badge-height);
+    margin-top: var(--space-2);
+  }
+
+  .award-badge,
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--badge-height);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+  }
+
+  .award-badge {
+    padding-left: var(--space-2);
+    background: var(--primary-weak);
+    color: var(--primary-pressed);
+  }
+
+  .award-badge :global(svg) {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* 두 줄로 넘어가도 "(1위)" 같은 짧은 꼬리가 혼자 남지 않게 */
+  .award-badge-text {
+    text-wrap: balance;
+  }
+
+  .status-pill {
+    background: var(--surface-subtle);
+    color: var(--ink-secondary);
+  }
+
+  .card-oneliner {
+    margin-top: var(--space-3);
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .card-role {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .card-role-label {
+    flex: none;
+    color: var(--ink-tertiary);
+  }
+
+  /* ---------- 성과 슬롯: metric-stat과 성과 문장의 높이가 같다 ---------- */
+  .card-result {
+    margin-top: auto;
+    padding-top: var(--space-5);
+  }
+
+  .card-result-inner {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .outcome-text {
+    display: flex;
+    align-items: flex-end;
+    min-height: calc(var(--metric-size) * var(--metric-line));
+    font-size: var(--body-size);
+    font-weight: 600;
+    line-height: var(--body-line);
+    color: var(--ink-primary);
+    text-wrap: pretty;
+  }
+
+  .outcome-detail {
+    margin-top: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+    text-wrap: pretty;
+  }
+
+  .outcome-detail :global(b) {
+    font-weight: 600;
+    color: var(--ink-secondary);
+  }
+
+  .card-stack {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .card-stack :global(.card-arrow) {
+    width: 20px;
+    height: 20px;
+    color: var(--ink-tertiary);
+    transition:
+      transform var(--duration-card) var(--ease-standard),
+      color var(--duration-card) var(--ease-standard);
+  }
+
+  /* ---------- 미리보기 확대: hover는 hover 가능한 기기에서만, 키보드 focus-visible에도 같은 효과 ---------- */
+  .card:focus-visible {
+    transform: translateY(var(--card-lift));
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .card:focus-visible .card-media :global(.card-image) {
+    transform: scale(var(--card-media-scale));
+  }
+
+  .card:focus-visible .card-stack :global(.card-arrow) {
+    color: var(--primary);
+    transform: translateX(2px);
+  }
+
+  @media (hover: hover) {
+    .card:hover {
+      transform: translateY(var(--card-lift));
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card:hover .card-media :global(.card-image) {
+      transform: scale(var(--card-media-scale));
+    }
+
+    .card:hover .card-stack :global(.card-arrow) {
+      color: var(--primary);
+      transform: translateX(2px);
+    }
+  }
+
+  /* 모션 감소: 테두리·그림자만, 이동·확대 없음 */
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition:
+        box-shadow var(--duration-card) var(--ease-standard),
+        border-color var(--duration-card) var(--ease-standard);
+    }
+
+    .card:hover,
+    .card:focus-visible {
+      transform: none;
+    }
+
+    .card-media :global(.card-image),
+    .card-stack :global(.card-arrow) {
+      transition: color var(--duration-card) var(--ease-standard);
+    }
+
+    .card:hover .card-media :global(.card-image),
+    .card:focus-visible .card-media :global(.card-image),
+    .card:hover .card-stack :global(.card-arrow),
+    .card:focus-visible .card-stack :global(.card-arrow) {
+      transform: none;
+    }
+  }
+
+  /* 2열이지만 긴 수상명이 두 줄로 넘어가는 폭: 모든 카드의 배지 자리를 두 줄 높이로 맞춰 같은 행의 한 줄 위치를 지킨다 */
+  @media (min-width: 768px) and (max-width: 959.98px) {
+    .card-badge-slot {
+      min-height: calc(var(--caption-size) * var(--caption-line) * 2 + var(--space-1) * 2);
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .award-badge {
+      white-space: normal;
+    }
+
+    /* 1열에는 맞출 옆 카드가 없으므로 빈 배지 자리를 접는다 */
+    .card-badge-slot--empty {
+      min-height: 0;
+      margin-top: 0;
+    }
+  }
+</style>

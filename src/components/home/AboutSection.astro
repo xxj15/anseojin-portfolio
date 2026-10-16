@@ -1,0 +1,414 @@
+---
+/**
+ * Home · About & Contact(#about): 프로필 사진(히어로에서 이동, rounded.lg) · 소개 · 학력·교육·어학 · Awards 전체 · 연락처 블록.
+ * 연락처 블록은 사이트의 유일한 연락처다(contact-band 제거, 사용자 결정): mailto · tel · PDF 받기 · GitHub ↗ · velog ↗.
+ * "이메일 복사" 버튼은 없앴다(사용자 결정 2026-10-16). 주소는 mailto 링크로 보이고 직접 복사할 수 있다.
+ * 원문의 Archive(GitHub · velog)는 연락처 블록 안의 "아카이브" 묶음으로 둔다.
+ */
+import { Image } from 'astro:assets';
+import { awards, education, profile } from '../../data/profile';
+import { contact } from '../../data/site';
+import { projectPath, withBase } from '../../lib/paths';
+import Icon from '../Icon.astro';
+import RichText from '../RichText.astro';
+import HomeSection from './HomeSection.astro';
+import TimelineRow from './TimelineRow.astro';
+
+interface Props {
+  /** 히어로 바로 다음에 올 때 위 여백을 64px로 줄인다(src/pages/index.astro가 정한다). */
+  spacing?: 'default' | 'tight';
+}
+
+const { spacing = 'default' } = Astro.props;
+
+const archiveLinks = [
+  { term: 'GitHub', ...contact.github },
+  { term: 'velog', ...contact.velog },
+] as const;
+---
+
+<HomeSection id="about" label="ABOUT" title="소개" spacing={spacing}>
+  <div class="about">
+    <figure class="about-photo" data-reveal>
+      <Image
+        src={profile.photo.src}
+        alt={profile.photo.alt}
+        class="about-photo-image"
+        loading="lazy"
+        decoding="async"
+        widths={[320, 640, 900]}
+        sizes="(min-width: 1024px) 384px, (min-width: 768px) 280px, 240px"
+      />
+    </figure>
+
+    <div class="about-main">
+      <p class="about-bio" data-reveal><RichText value={profile.bio} /></p>
+
+      <div class="about-block" data-reveal>
+        <h3 class="about-heading" id="about-education-title">학력·교육·어학</h3>
+        <dl class="edu-list" aria-labelledby="about-education-title">
+          {
+            education.map((row) => (
+              <div class="edu-row">
+                <dt>{row.term}</dt>
+                <dd>
+                  <ul role="list">
+                    {row.items.map((item) => (
+                      <li>
+                        <span>{item.text}</span>
+                        {item.date && (
+                          <>
+                            {' '}
+                            <span class="edu-date">{item.date}</span>
+                          </>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+
+      <div class="about-block" data-reveal>
+        <h3 class="about-heading" id="about-awards-title">수상</h3>
+        <ol class="award-list" role="list" aria-labelledby="about-awards-title">
+          {
+            awards.map((award) => (
+              <TimelineRow meta={award.date} variant="compact">
+                <div class="award">
+                  <p class="award-name">{award.name}</p>
+                  {award.related &&
+                    (award.related.slug ? (
+                      <a class="award-project" href={projectPath(award.related.slug)}>
+                        {award.related.label}
+                        <Icon name="arrow-right" />
+                      </a>
+                    ) : award.related.href ? (
+                      <a class="award-project" href={award.related.href} target="_blank" rel="noopener noreferrer">
+                        {award.related.label}
+                        <Icon name="external" />
+                        <span class="sr-only">(새 창)</span>
+                      </a>
+                    ) : (
+                      <span class="award-project award-project--text">{award.related.label}</span>
+                    ))}
+                </div>
+              </TimelineRow>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+
+    <div class="about-contact" data-reveal>
+      <h3 class="about-heading" id="about-contact-title">연락처</h3>
+      <dl class="contact-list">
+        <div class="contact-item">
+          <dt>이메일</dt>
+          <dd><a class="contact-value" href={`mailto:${contact.email}`}>{contact.email}</a></dd>
+        </div>
+        <div class="contact-item">
+          <dt>휴대폰</dt>
+          <dd><a class="contact-value" href={contact.phone.href}>{contact.phone.label}</a></dd>
+        </div>
+      </dl>
+      <div class="contact-actions">
+        <a class="btn btn-secondary" href={withBase(contact.pdf.href)} download={contact.pdf.fileName}>
+          <Icon name="download" />
+          <span>{contact.pdf.label} <span class="nw">{contact.pdf.size}</span></span>
+        </a>
+      </div>
+
+      <h3 class="about-heading about-heading--sub" id="about-archive-title">아카이브</h3>
+      <dl class="contact-list" aria-labelledby="about-archive-title">
+        {
+          archiveLinks.map((link) => (
+            <div class="contact-item">
+              <dt lang="en">{link.term}</dt>
+              <dd>
+                <a class="contact-value" href={link.href} target="_blank" rel="noopener noreferrer">
+                  {link.label}
+                  <Icon name="external" />
+                  <span class="sr-only">(새 창)</span>
+                </a>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</HomeSection>
+
+<style>
+  /*
+    데스크톱: 왼쪽 4컬럼에 사진과 그 아래 연락처, 오른쪽(6–12컬럼)에 소개 · 학력 · 수상.
+    DOM은 사진 → 소개 · 학력 · 수상 → 연락처 순이라 1열(모바일)에서도 읽는 순서가 자연스럽다.
+  */
+  .about {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      'photo photo photo photo . main main main main main main main'
+      'contact contact contact contact . main main main main main main main';
+    column-gap: var(--gutter);
+  }
+
+  .about-photo {
+    grid-area: photo;
+  }
+
+  .about-main {
+    grid-area: main;
+    min-width: 0;
+  }
+
+  .about-contact {
+    grid-area: contact;
+    min-width: 0;
+    margin-top: var(--space-6);
+  }
+
+  .about-photo :global(.about-photo-image) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    background: var(--surface-subtle);
+  }
+
+  /* 첫 문장(b)은 600 · ink-primary, 나머지는 보통 굵기 본문(ink-secondary) */
+  .about-bio {
+    max-width: 680px;
+    font-size: var(--body-lg-size);
+    font-weight: var(--body-lg-weight);
+    line-height: var(--body-lg-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .about-bio :global(b) {
+    font-weight: 600;
+    color: var(--ink-primary);
+  }
+
+  .about-block {
+    margin-top: var(--space-8);
+  }
+
+  .about-heading {
+    margin-bottom: var(--space-4);
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .about-heading--sub {
+    margin-top: var(--space-6);
+  }
+
+  /* ---------- 학력·교육·어학 ---------- */
+  .edu-row {
+    display: grid;
+    grid-template-columns: var(--space-9) minmax(0, 1fr);
+    column-gap: var(--gutter);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .edu-row:last-child {
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .edu-row dt {
+    padding-top: calc((var(--body-size) * var(--body-line) - var(--caption-size) * var(--caption-line)) / 2);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .edu-row dd {
+    min-width: 0;
+    color: var(--ink-primary);
+  }
+
+  .edu-row li + li {
+    margin-top: var(--space-1);
+  }
+
+  /* 앞의 실제 공백(스크린리더·복사용 경계) + 4px = 예전과 같은 약 8px 간격 */
+  .edu-date {
+    margin-left: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    color: var(--ink-tertiary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ---------- 수상 ---------- */
+  .award-list {
+    --timeline-meta-offset: calc((var(--body-size) * var(--body-line) - var(--caption-size) * var(--caption-line)) / 2);
+  }
+
+  .award {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    column-gap: var(--space-4);
+  }
+
+  .award-name {
+    min-width: 0;
+    font-weight: 500;
+    color: var(--ink-primary);
+    text-wrap: balance;
+  }
+
+  .award-project {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+    white-space: nowrap;
+    text-underline-offset: var(--space-1);
+  }
+
+  .award-project--text {
+    font-weight: var(--caption-weight);
+    color: var(--ink-tertiary);
+  }
+
+  .award-project :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: var(--ink-tertiary);
+  }
+
+  @media (hover: hover) {
+    a.award-project:hover {
+      color: var(--ink-primary);
+      text-decoration-line: underline;
+    }
+  }
+
+  /* ---------- 연락처 (흰 바탕, body 크기) ---------- */
+  .contact-list {
+    border-top: 1px solid var(--border-hairline);
+  }
+
+  .contact-item {
+    display: grid;
+    grid-template-columns: var(--space-8) minmax(0, 1fr);
+    column-gap: var(--space-3);
+    align-items: center;
+    min-height: 52px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .contact-item dt {
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .contact-item dd {
+    min-width: 0;
+  }
+
+  .contact-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 44px;
+    font-size: var(--body-size);
+    font-weight: 500;
+    line-height: var(--body-line);
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+    text-underline-offset: var(--space-1);
+    overflow-wrap: anywhere;
+  }
+
+  .contact-value :global(svg) {
+    width: 16px;
+    height: 16px;
+    color: var(--ink-tertiary);
+  }
+
+  @media (hover: hover) {
+    .contact-value:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  .contact-actions {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .contact-actions :global(.btn) {
+    width: 100%;
+    padding-inline: var(--space-4);
+    white-space: normal;
+  }
+
+  @media (max-width: 1023.98px) {
+    .about {
+      grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
+      grid-template-areas:
+        'photo main'
+        'contact main';
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .about {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      grid-template-areas:
+        'photo'
+        'main'
+        'contact';
+      row-gap: var(--space-6);
+    }
+
+    .about-photo {
+      max-width: 240px;
+    }
+
+    .about-contact {
+      margin-top: var(--space-2);
+    }
+
+    .about-block {
+      margin-top: var(--space-7);
+    }
+
+    .award-project {
+      min-height: 44px;
+    }
+
+    /* 좁은 단에서는 왼쪽 용어 열을 줄여 본문 폭을 확보한다 */
+    .edu-row {
+      grid-template-columns: var(--space-8) minmax(0, 1fr);
+      column-gap: var(--space-3);
+    }
+
+    .award-list {
+      --timeline-compact-meta: var(--space-8);
+    }
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+/**
+ * 섹션 안의 묶음: h3(title) + 선택적 lead 한 단락 + 내용. 묶음 사이는 96px(모바일 64px).
+ */
+interface Props {
+  title: string;
+  lead?: string;
+  id?: string;
+}
+
+const { title, lead, id } = Astro.props;
+const titleId = id ? `${id}-title` : undefined;
+---
+
+<div class="subsection" id={id}>
+  <div class="subsection-head" data-reveal>
+    <h3 class="subsection-title" id={titleId}>{title}</h3>
+    {lead && <p class="subsection-lead">{lead}</p>}
+  </div>
+  <slot />
+</div>
+
+<style>
+  .subsection + .subsection {
+    margin-top: var(--space-9);
+  }
+
+  .subsection-head {
+    margin-bottom: var(--space-5);
+  }
+
+  .subsection-title {
+    font-size: var(--title-size);
+    font-weight: 700;
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .subsection-lead {
+    max-width: 680px;
+    margin-top: var(--space-2);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  @media (max-width: 767.98px) {
+    .subsection + .subsection {
+      margin-top: var(--space-8);
+    }
+  }
+</style>

@@ -1,0 +1,66 @@
+---
+/**
+ * 점-선-점 모티프. 내비 로고와 영문 섹션 라벨 앞, 두 곳에서만 쓴다(DESIGN.md Brand & Style).
+ * - logo: 폭 28px
+ * - label: 사각형 6px(모서리 2px) 두 개를 1.5px 선으로 이어 폭 24px
+ * 왼쪽 사각형은 primary-light, 선과 오른쪽 사각형은 primary.
+ */
+interface Props {
+  variant: 'logo' | 'label';
+}
+
+const { variant } = Astro.props;
+---
+
+<span class:list={['motif', `motif--${variant}`]} aria-hidden="true">
+  <i class="motif-start"></i><b class="motif-line"></b><i class="motif-end"></i>
+</span>
+
+<style>
+  .motif {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+  }
+
+  .motif i,
+  .motif b {
+    display: block;
+    flex: none;
+  }
+
+  .motif-start {
+    background: var(--primary-light);
+  }
+
+  .motif-line,
+  .motif-end {
+    background: var(--primary);
+  }
+
+  /* 로고: 10 + 8 + 10 = 28px */
+  .motif--logo .motif-start,
+  .motif--logo .motif-end {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .motif--logo .motif-line {
+    width: 8px;
+    height: 2px;
+  }
+
+  /* 섹션 라벨: 6 + 12 + 6 = 24px, 선 1.5px */
+  .motif--label .motif-start,
+  .motif--label .motif-end {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+  }
+
+  .motif--label .motif-line {
+    width: 12px;
+    height: 1.5px;
+  }
+</style>

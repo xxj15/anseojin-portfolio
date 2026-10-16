@@ -1,0 +1,71 @@
+---
+/**
+ * Not found: 잘못된 slug·경로. "찾는 프로젝트가 없어요." + "전체 프로젝트 보기"(→ /#projects).
+ * 내비는 그대로 둔다(BaseLayout). "404 Not Found" 같은 문구는 쓰지 않는다(EXPERIENCE.md Voice and Tone).
+ * 페이지 끝에는 contact-band 대신 섹션 간격만큼 아래 여백을 둔다.
+ * 정적 호스팅은 이 페이지를 dist/404.html로 받아 없는 경로에 돌려준다.
+ */
+import Icon from '../components/Icon.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/paths';
+
+const title = '찾는 프로젝트가 없어요 — 안서진 포트폴리오';
+const description = '주소가 바뀌었거나 잘못 입력된 것 같아요. 전체 프로젝트에서 다시 찾아보세요.';
+---
+
+<BaseLayout title={title} description={description}>
+  <section class="not-found" aria-labelledby="not-found-title">
+    <div class="container">
+      <h1 class="not-found-title" id="not-found-title">찾는 프로젝트가 없어요.</h1>
+      <p class="not-found-text">주소가 바뀌었거나 잘못 입력된 것 같아요. 전체 프로젝트에서 다시 찾아보세요.</p>
+      <a class="btn btn-primary not-found-action" href={withBase('/#projects')} data-not-found-action>
+        전체 프로젝트 보기
+        <Icon name="arrow-right" />
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found {
+    padding-top: var(--space-9);
+    padding-bottom: var(--section-gap);
+  }
+
+  .not-found-title {
+    font-size: var(--headline-size);
+    font-weight: var(--headline-weight);
+    line-height: var(--headline-line);
+    letter-spacing: var(--headline-tracking);
+  }
+
+  .not-found-text {
+    max-width: 680px;
+    margin-top: var(--space-4);
+    font-size: var(--body-lg-size);
+    line-height: var(--body-lg-line);
+    color: var(--ink-secondary);
+  }
+
+  .not-found-action {
+    margin-top: var(--space-6);
+  }
+
+  @media (max-width: 767.98px) {
+    .not-found {
+      padding-top: var(--space-8);
+    }
+
+    .not-found-title {
+      font-size: var(--headline-mobile-size);
+      font-weight: var(--headline-mobile-weight);
+      line-height: var(--headline-mobile-line);
+      letter-spacing: var(--headline-mobile-tracking);
+    }
+
+    .not-found-text {
+      font-size: var(--body-size);
+      line-height: var(--body-line);
+    }
+  }
+</style>

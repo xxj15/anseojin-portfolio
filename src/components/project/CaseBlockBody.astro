@@ -1,0 +1,370 @@
+---
+/**
+ * case-block 한 칸의 내용: 원문 라벨(label, primary 대문자) + 소제목(title) → 문단 · 목록 · 흐름 · 태그 · 수식 · 그림.
+ * 라벨과 소제목은 h3 하나로 읽힌다(케이스 h2 아래 개요). RESULT 문단과 emphasis 문단은 ink-primary 600(DESIGN.md › Case block).
+ * 긴 본문 한 줄은 680px를 넘기지 않고, 흐름 · 수식 · 그림은 블록 폭 전체를 쓴다.
+ */
+import type { CaseBlock } from '../../data/project-details';
+import RichText from '../RichText.astro';
+import CaseFigure from './CaseFigure.astro';
+import LinkButton from './LinkButton.astro';
+
+interface Props {
+  block: CaseBlock;
+  /** 이미지 실패 시 보일 프로젝트명 */
+  name: string;
+}
+
+const { block, name } = Astro.props;
+const isResult = block.label === 'RESULT';
+/** 영문 라벨에만 lang="en"(숫자 라벨 01·02는 언어 표시 없음) */
+const labelLang = block.label && /[A-Za-z]/.test(block.label) ? 'en' : undefined;
+---
+
+<div class="case-block-body" data-case-block data-block-label={block.label ?? ''}>
+  {
+    block.label && block.title && (
+      <h3 class="block-head">
+        <span class="block-label" lang={labelLang}>
+          {block.label}
+        </span>
+        <span class="block-title">{block.title}</span>
+      </h3>
+    )
+  }
+  {
+    block.label && !block.title && (
+      <h3 class="block-head">
+        <span class="block-label" lang={labelLang}>
+          {block.label}
+        </span>
+      </h3>
+    )
+  }
+
+  <div class="block-content">
+    {
+      block.content.map((item) => {
+        if (item.kind === 'text') {
+          return (
+            <p class:list={['block-text', { 'block-text--strong': isResult || item.tone === 'emphasis' }]} data-block-text>
+              <RichText value={item.text} />
+            </p>
+          );
+        }
+        if (item.kind === 'list') {
+          return (
+            <ul class="block-list" role="list">
+              {item.items.map((entry) => (
+                <li>
+                  <RichText value={entry} />
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        if (item.kind === 'flow') {
+          return (
+            <div class="flow">
+              {item.title && <p class="flow-title">{item.title}</p>}
+              <ol class="flow-steps" role="list">
+                {item.steps.map((step, index) => (
+                  <li class="flow-step">
+                    <span class="flow-pill">{step}</span>
+                    {index < item.steps.length - 1 && (
+                      <span class="flow-arrow" aria-hidden="true">
+                        →
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          );
+        }
+        if (item.kind === 'tags') {
+          return (
+            <ul class="tags" role="list">
+              {item.items.map((tag) => (
+                <li class="tag">{tag}</li>
+              ))}
+            </ul>
+          );
+        }
+        if (item.kind === 'formulas') {
+          return (
+            <div class="formulas">
+              {item.items.map((formula) => (
+                <div class="formula">
+                  <h4 class="formula-title">{formula.title}</h4>
+                  <p class="formula-note">{formula.note}</p>
+                  <dl class="formula-rows">
+                    {formula.rows.map((row) => (
+                      <div class="formula-row">
+                        <dt>{row.term}</dt>
+                        <dd>
+                          <span class="formula-eq" aria-hidden="true">
+                            ={' '}
+                          </span>
+                          {row.expression}
+                          {row.hint && <small class="formula-hint">{row.hint}</small>}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+              ))}
+            </div>
+          );
+        }
+        return <CaseFigure layout={item.layout} images={item.images} note={item.note} compact={item.compact} name={name} />;
+      })
+    }
+    {
+      block.action && (
+        <div class="block-action">
+          <LinkButton link={block.action} variant="secondary" />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .case-block-body {
+    min-width: 0;
+  }
+
+  /* ---------- 라벨 + 소제목 ---------- */
+  .block-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-4);
+    font-weight: inherit;
+  }
+
+  .block-label {
+    font-size: var(--label-size);
+    font-weight: var(--label-weight);
+    line-height: var(--label-line);
+    letter-spacing: var(--label-tracking);
+    text-transform: uppercase;
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .block-title {
+    font-size: var(--title-size);
+    font-weight: var(--title-weight);
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .block-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .block-action {
+    margin-top: var(--space-2);
+  }
+
+  .block-head + .block-content {
+    margin-top: var(--space-4);
+  }
+
+  /* ---------- 문단 · 목록 ---------- */
+  .block-text,
+  .block-list {
+    max-width: 680px;
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-secondary);
+    text-wrap: pretty;
+  }
+
+  .block-text :global(b),
+  .block-list :global(b) {
+    color: var(--ink-primary);
+  }
+
+  .block-text--strong {
+    font-size: var(--body-lg-size);
+    font-weight: 600;
+    line-height: var(--body-lg-line);
+    color: var(--ink-primary);
+  }
+
+  .block-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .block-list li {
+    position: relative;
+    padding-left: var(--space-5);
+  }
+
+  .block-list li::before {
+    content: '';
+    position: absolute;
+    left: var(--space-2);
+    top: calc(var(--body-size) * var(--body-line) / 2 - 2.5px);
+    width: 5px;
+    height: 5px;
+    border-radius: var(--radius-full);
+    background: var(--ink-tertiary);
+  }
+
+  /* ---------- 흐름: A → B → C ---------- */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .flow-title {
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) 0;
+  }
+
+  .flow-step {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .flow-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: var(--space-1) var(--space-4);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-full);
+    background: var(--surface-base);
+    font-size: var(--caption-size);
+    font-weight: 600;
+    line-height: var(--caption-line);
+    color: var(--ink-primary);
+    white-space: nowrap;
+  }
+
+  .flow-arrow {
+    padding-inline: var(--space-2);
+    font-size: var(--body-size);
+    line-height: 1;
+    color: var(--ink-tertiary);
+  }
+
+  /* ---------- 태그 ---------- */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-full);
+    background: var(--surface-base);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-secondary);
+  }
+
+  /* ---------- 수식 카드 ---------- */
+  .formulas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin-top: var(--space-1);
+  }
+
+  .formula {
+    padding: var(--space-5) var(--space-5) var(--space-2);
+    border: 1px solid var(--border-hairline);
+    border-radius: var(--radius-md);
+    background: var(--surface-base);
+  }
+
+  .formula-title {
+    font-size: var(--title-size);
+    font-weight: var(--title-weight);
+    line-height: var(--title-line);
+    color: var(--ink-primary);
+  }
+
+  .formula-note {
+    margin-top: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  .formula-rows {
+    margin-top: var(--space-4);
+  }
+
+  .formula-row {
+    padding-block: var(--space-3);
+    border-top: 1px solid var(--border-hairline);
+    font-size: var(--body-size);
+    line-height: var(--body-line);
+    color: var(--ink-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .formula-row dt {
+    display: inline;
+    font-weight: 600;
+  }
+
+  .formula-row dd {
+    display: inline;
+  }
+
+  .formula-eq {
+    margin-inline: var(--space-1);
+    color: var(--ink-tertiary);
+  }
+
+  .formula-hint {
+    display: block;
+    margin-top: var(--space-1);
+    font-size: var(--caption-size);
+    font-weight: var(--caption-weight);
+    line-height: var(--caption-line);
+    color: var(--ink-tertiary);
+  }
+
+  @media (max-width: 767.98px) {
+    .formulas {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .formula {
+      padding: var(--space-4) var(--space-4) var(--space-1);
+    }
+
+    .flow-pill {
+      white-space: normal;
+    }
+  }
+</style>
