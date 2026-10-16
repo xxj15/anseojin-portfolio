@@ -151,9 +151,9 @@ test.describe('레거시 해시 경로', () => {
     expect(new URL(page.url()).pathname).toMatch(new RegExp(`^${new URL(homeUrl(baseURL)).pathname}projects/finch/?$`));
   });
 
-  test('#/tech → /#experience', async ({ page, baseURL }) => {
+  test('#/tech → /#tech-stack', async ({ page, baseURL }) => {
     await gotoLegacy(page, '#/tech');
-    await page.waitForURL(`${homeUrl(baseURL)}#experience`);
+    await page.waitForURL(`${homeUrl(baseURL)}#tech-stack`);
   });
 
   test('#/activities → /#activities', async ({ page, baseURL }) => {

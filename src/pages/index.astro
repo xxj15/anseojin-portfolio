@@ -1,7 +1,7 @@
 ---
 /**
- * 홈: 내비 → 히어로 → About → Projects(카드 8개, 최신순) → Experience → Activities(아래 섹션 간격으로 끝남).
- * 섹션 순서는 내비 순서(About · Projects · Experience · Activities)와 같다(사용자 결정 2026-10-16: About을 맨 위로,
+ * 홈: 내비 → 히어로 → About → Tech Stack → Projects(카드 8개, 최신순) → Experience → Activities(아래 섹션 간격으로 끝남).
+ * 섹션 순서는 내비 순서(About · Tech Stack · Projects · Experience · Activities)와 같다(사용자 결정 2026-10-16: About을 맨 위로,
  * Work → Projects로 이름 변경. 주소도 #projects · #project-<slug>).
  * 히어로 바로 다음 섹션(About)만 위 여백 64px, 나머지는 섹션 간격(160px · 모바일 96px).
  */
@@ -9,6 +9,7 @@ import Hero from '../components/Hero.astro';
 import AboutSection from '../components/home/AboutSection.astro';
 import ActivitiesSection from '../components/home/ActivitiesSection.astro';
 import ExperienceSection from '../components/home/ExperienceSection.astro';
+import TechStackSection from '../components/home/TechStackSection.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import { projects } from '../data/projects';
@@ -26,6 +27,7 @@ const EAGER_CARDS = 0;
   <Hero />
 
   <AboutSection spacing="tight" />
+  <TechStackSection />
 
   <section class="projects" id="projects" aria-labelledby="projects-title">
     <div class="container">

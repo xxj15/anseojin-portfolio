@@ -18,6 +18,7 @@ export interface NavItem {
 /** 내비 순서는 About이 맨 앞이다(사용자 결정 2026-10-16). 홈 섹션 순서와는 별개다. */
 export const navItems: readonly NavItem[] = [
   { label: 'About', sectionId: 'about' },
+  { label: 'Tech Stack', sectionId: 'tech-stack' },
   { label: 'Projects', sectionId: 'projects' },
   { label: 'Experience', sectionId: 'experience' },
   { label: 'Activities', sectionId: 'activities' },

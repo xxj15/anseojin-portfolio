@@ -61,9 +61,11 @@ const LIFTED = 'matrix(1, 0, 0, 1, 0, -4)';
 const ZOOMED = 'matrix(1.04, 0, 0, 1.04, 0, 0)';
 
 /** 홈 하단 섹션의 h2 (Projects 다음, 섹션 순서 = EXPERIENCE.md Information Architecture) */
-const H2_TEXTS = ['소개', '프로젝트', '기술 경험', '활동']; // 페이지 끝 contact-band는 없앴다(사용자 결정)
-/** 히어로 → About → Projects → Experience → Activities (내비 순서와 같음, 사용자 결정 2026-10-16) */
-const SECTION_ORDER = ['about', 'projects', 'experience', 'activities'];
+const H2_TEXTS = ['소개', '기술 스택', '프로젝트', '개발 경험', '활동']; // 페이지 끝 contact-band는 없앴다(사용자 결정)
+/** 히어로 → About → Tech Stack → Projects → Experience → Activities (내비 순서와 같음, 사용자 결정 2026-10-16) */
+const SECTION_ORDER = ['about', 'tech-stack', 'projects', 'experience', 'activities'];
+/** 내비 항목(순서 = 섹션 순서) */
+const NAV_NAMES = { about: 'About', 'tech-stack': 'Tech Stack', projects: 'Projects', experience: 'Experience', activities: 'Activities' } as const;
 /**
  * tech-chip 집계: 프로젝트 기술 스택 필드(카드 스택 + 상세 extraStack − 사용 예정) 기준. 상세 헤더의 스택과 같다.
  * NEW:LEARN은 React · TypeScript · SEED Design만 센다(D3.js 등은 사용 예정이라 제외).
@@ -385,11 +387,11 @@ test.describe('JS 꺼짐', () => {
     expect(Math.abs(top - HEADING_TOP)).toBeLessThanOrEqual(1);
   });
 
-  test('Experience · Activities · About이 모두 보인다: 칩 목록·자세히 보기 내용은 펼친 채, 동작하지 않는 토글·복사 버튼은 숨김', async ({
+  test('Tech Stack · Experience · Activities · About이 모두 보인다: 칩 목록·자세히 보기 내용은 펼친 채, 동작하지 않는 토글·복사 버튼은 숨김', async ({
     page,
   }) => {
     await openHome(page);
-    for (const id of ['experience', 'activities', 'about']) {
+    for (const id of ['tech-stack', 'experience', 'activities', 'about']) {
       const section = page.locator(`#${id}`);
       await expect(section).toBeVisible();
       for (const element of await section.locator('[data-reveal]').all()) {
@@ -521,6 +523,7 @@ for (const width of [375, 320]) {
       await openHome(page);
       await expect(page.locator('#experience .home-section-title')).toHaveCSS('font-size', '26px');
       await expect(page.locator('#experience')).toHaveCSS('padding-top', '96px');
+      await expect(page.locator('#tech-stack')).toHaveCSS('padding-top', '96px');
 
       // 가장 긴 목록(TypeScript, 6개)과 DAILY TICK 상세를 펼친다
       const chip = page.locator('[data-tech-chip="typescript"]');
@@ -538,7 +541,7 @@ for (const width of [375, 320]) {
 
       const offenders = await page.evaluate(() => {
         const width = document.documentElement.clientWidth;
-        return Array.from(document.querySelectorAll<HTMLElement>('#experience *, #activities *, #about *'))
+        return Array.from(document.querySelectorAll<HTMLElement>('#tech-stack *, #experience *, #activities *, #about *'))
           .filter((element) => {
             const rect = element.getBoundingClientRect();
             return rect.width > 0 && (rect.right > width + 0.5 || rect.left < -0.5);
@@ -573,7 +576,7 @@ for (const width of [375, 320]) {
       await open();
       await expect(page.locator('html')).toHaveCSS('overflow-y', 'hidden');
       const itemHeights = await panel.locator('a').evaluateAll((links) => links.map((link) => link.getBoundingClientRect().height));
-      expect(itemHeights).toEqual([48, 48, 48, 48]);
+      expect(itemHeights).toEqual([48, 48, 48, 48, 48]);
       const before = await page.evaluate(() => window.scrollY);
       await page.mouse.move(width / 2, 600);
       await page.mouse.wheel(0, 600);
@@ -618,7 +621,7 @@ test.describe('앵커 딥링크', () => {
 
     const nav = page.getByRole('navigation', { name: '주요 섹션' });
     await expect(nav.getByRole('link', { name: 'Projects' })).toHaveAttribute('aria-current', 'location');
-    for (const name of ['Experience', 'Activities', 'About']) {
+    for (const name of ['About', 'Tech Stack', 'Experience', 'Activities']) {
       await expect(nav.getByRole('link', { name })).not.toHaveAttribute('aria-current', /.*/);
     }
     // 스크롤한 뒤에는 내비 테두리와 진행 바가 보인다
@@ -630,16 +633,18 @@ test.describe('앵커 딥링크', () => {
     expect(progress).toBeLessThan(1);
   });
 
-  test('About · Projects · Experience · Activities: 내비 앵커로 이동하면 머리글이 모두 같은 자리에 오고 스크롤 스파이가 활성 항목을 바꾼다', async ({
+  test('About · Tech Stack · Projects · Experience · Activities: 내비 앵커로 이동하면 머리글이 모두 같은 자리에 오고 스크롤 스파이가 활성 항목을 바꾼다', async ({
     page,
   }) => {
     await openHome(page);
     const nav = page.getByRole('navigation', { name: '주요 섹션' });
-    const names = { about: 'About', projects: 'Projects', experience: 'Experience', activities: 'Activities' } as const;
+    const names = NAV_NAMES;
     const headingTop = (id: string) =>
       page.locator(`#${id} .section-label`).first().evaluate((element) => element.getBoundingClientRect().top);
     // 문서 순서대로(히어로 바로 다음 About은 위 여백 64px, 나머지는 160px이지만 머리글 위치는 같다)
-    for (const id of ['about', 'projects', 'experience', 'activities'] as const) {
+    // 내비 순서 = 섹션 순서
+    await expect(nav.getByRole('link')).toHaveText(Object.values(NAV_NAMES));
+    for (const id of SECTION_ORDER as (keyof typeof NAV_NAMES)[]) {
       await expect(nav.locator(`a[href="/#${id}"]`)).toHaveCount(1);
       await expect(page.locator(`section#${id}`)).toHaveCount(1);
 
@@ -722,14 +727,15 @@ test.describe('AC: 키보드', () => {
       focusables.forEach((element, index) => element.setAttribute('data-tab-order', String(index)));
       return focusables.length;
     });
-    // 읽기 순서: skip · 로고 · 내비 4 (6, 히어로에는 링크 · 칩 · CTA 없음)
+    // 읽기 순서: skip · 로고 · 내비 5(About · Tech Stack · Projects · Experience · Activities) (7, 히어로에는 링크 · 칩 · CTA 없음)
     // + About: 수상 관련 링크 5(프로젝트 4 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog · Blog (11, 이메일 복사 없음)
+    // + Tech Stack: tech-chip 15 (닫힌 칩 목록 링크는 제외)
     // + Projects: 카드 8
-    // + Experience: tech-chip 15 · DAILY TICK 링크 2 · 자세히 보기 1 · 물류관리 시스템 GitHub 1 (19, 닫힌 칩 목록 링크는 제외)
+    // + Experience: DAILY TICK 링크 2 · 자세히 보기 1 · 물류관리 시스템 GitHub 1 (4)
     // + Activities: OURWISH 프로젝트 보기 · SSAFYcial 인스타그램 · 서강투데이 인스타그램 · 서강투데이 책자
     //   · Mash UP(DevOops 프로젝트 보기 · Next.js 스터디 GitHub · DevOops GitHub) (7)
-    // (페이지 끝 contact-band는 없앴다)
-    expect(total).toBe(51);
+    // (페이지 끝 contact-band는 없앴다. 내비에 Tech Stack이 늘어 51 → 52)
+    expect(total).toBe(52);
 
     await page.keyboard.press('Tab');
     const skip = page.locator('.skip-link');
@@ -802,7 +808,7 @@ test.describe('AC: 문서 구조', () => {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('h2')).toHaveText(H2_TEXTS);
     await expect(page.locator('#projects .section-label + h2, #projects .section-label ~ h2')).toHaveText('프로젝트');
-    // 섹션 순서: 히어로 → About → Projects → Experience → Activities, 각 섹션은 영문 라벨 + h2(aria-labelledby)
+    // 섹션 순서: 히어로 → About → Tech Stack → Projects → Experience → Activities, 각 섹션은 영문 라벨 + h2(aria-labelledby)
     const order = await page.locator('main > section[id]').evaluateAll((sections) => sections.map((section) => section.id));
     expect(order).toEqual(SECTION_ORDER);
     // 페이지 끝: 마지막 섹션(Activities) 아래에 섹션 간격 160px, 그 아래는 문서 끝
@@ -815,8 +821,9 @@ test.describe('AC: 문서 구조', () => {
     // 위 여백: 히어로 바로 다음(About)만 64px, Projects부터는 섹션 간격 160px
     for (const [id, label, title, top] of [
       ['about', 'ABOUT', '소개', '64px'],
+      ['tech-stack', 'TECH STACK', '기술 스택', '160px'],
       ['projects', 'PROJECTS', '프로젝트', '160px'],
-      ['experience', 'EXPERIENCE', '기술 경험', '160px'],
+      ['experience', 'EXPERIENCE', '개발 경험', '160px'],
       ['activities', 'ACTIVITIES', '활동', '160px'],
     ]) {
       const section = page.locator(`#${id}`);
@@ -825,9 +832,12 @@ test.describe('AC: 문서 구조', () => {
       await expect(section).toHaveAccessibleName(title);
       await expect(section, id).toHaveCSS('padding-top', top);
     }
-    // 섹션 안 소제목은 h3, 항목 제목은 h4 (h2를 늘리지 않는다)
-    await expect(page.locator('#experience h3')).toHaveText(['기술 스택', '개발 경험']);
-    await expect(page.locator('#experience h4')).toHaveText(['DAILY TICK', '데이터베이스시스템 프로젝트', '싸피레이스']);
+    // Tech Stack: h2 아래 칩 행만(소제목 없음). Experience: h2 "개발 경험"을 되풀이하는 h3 없이 행 제목이 h3
+    await expect(page.locator('#tech-stack :is(h3, h4)')).toHaveCount(0);
+    await expect(page.locator('#tech-stack [data-skill-group]')).toHaveCount(5);
+    await expect(page.locator('#experience [data-skill-group], #experience [data-tech-chip]')).toHaveCount(0);
+    await expect(page.locator('#experience h3')).toHaveText(['DAILY TICK', '데이터베이스시스템 프로젝트', '싸피레이스']);
+    await expect(page.locator('#experience h4')).toHaveCount(0);
     await expect(page.locator('#activities h3')).toHaveText(['UI/UX Design 작업물', '콘텐츠 기획·제작', '동아리·교육 활동']);
     await expect(page.locator('#about h3')).toHaveText(['학력·교육·어학', '수상', '연락처', '아카이브']);
 
@@ -1022,13 +1032,13 @@ test.describe('AC: 카드 미리보기 확대', () => {
 });
 
 // ---------------------------------------------------------------------------
-test.describe('Experience · Skills: tech-chip', () => {
-  const chip = (page: Page, id: string) => page.locator(`[data-tech-chip="${id}"]`);
+test.describe('Tech Stack: tech-chip', () => {
+  const chip = (page: Page, id: string) => page.locator(`#tech-stack [data-tech-chip="${id}"]`);
   const panelOf = async (page: Page, id: string) => page.locator(`#${await chip(page, id).getAttribute('aria-controls')}`);
 
   test('카테고리 5개, 칩은 button(기술명 + 사용 프로젝트 수, ink-tertiary), 쓴 프로젝트가 없는 기술은 정적 칩', async ({ page }) => {
     await openHome(page);
-    await expect(page.locator('[data-skill-group] .skill-group-label')).toHaveText([
+    await expect(page.locator('#tech-stack [data-skill-group] .skill-group-label')).toHaveText([
       'Frontend',
       'App / Real-time',
       'Backend / Languages',
@@ -1198,7 +1208,7 @@ test.describe('Experience · 개발 경험', () => {
     expect(units.every((unit) => !unit.startsWith('·'))).toBe(true);
 
     const race = rows.nth(2);
-    await expect(race.locator('h4')).toHaveText('싸피레이스');
+    await expect(race.locator('h3')).toHaveText('싸피레이스');
     await expect(race.locator('.award-badge, svg')).toHaveCount(0);
     await expect(race.locator('b, strong')).toHaveCount(0);
   });

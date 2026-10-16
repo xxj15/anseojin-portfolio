@@ -1,6 +1,8 @@
 ---
 /**
- * Home · Experience(#experience): Skills 칩 그룹 → 개발 경험 timeline-row(DAILY TICK · 데이터베이스시스템 프로젝트 · 싸피레이스).
+ * Home · Experience(#experience): 개발 경험 timeline-row(DAILY TICK · 데이터베이스시스템 프로젝트 · 싸피레이스).
+ * 기술 스택 칩은 별도 섹션(TechStackSection, #tech-stack)으로 옮겼다. h2가 "개발 경험"이라 같은 말을 되풀이하는 h3는 두지 않고,
+ * 행 제목이 h3다.
  * 각 행은 요약(설명 · 역할 · 핵심 성과 · 기술 스택 · 링크)을 기본으로 보이고,
  * DAILY TICK의 파이프라인·검증 표는 "자세히 보기" 토글 뒤에 둔다(src/scripts/timeline-toggle.ts).
  * 싸피레이스는 기술 경험으로만 둔다. 배지·트로피를 붙이지 않는다(사용자 결정).
@@ -9,30 +11,23 @@ import { experiences } from '../../data/profile';
 import Icon from '../Icon.astro';
 import ExternalLink from './ExternalLink.astro';
 import HomeSection from './HomeSection.astro';
-import SkillGroups from './SkillGroups.astro';
-import Subsection from './Subsection.astro';
 import TimelineRow from './TimelineRow.astro';
 
 const LABEL_CLOSED = '자세히 보기';
 const LABEL_OPEN = '접기';
 ---
 
-<HomeSection id="experience" label="EXPERIENCE" title="기술 경험">
-  <Subsection title="기술 스택" id="skills">
-    <SkillGroups />
-  </Subsection>
-
-  <Subsection title="개발 경험" id="dev-experience">
-    <ol class="exp-list" role="list">
+<HomeSection id="experience" label="EXPERIENCE" title="개발 경험">
+  <ol class="exp-list" role="list">
       {
         experiences.map((entry) => {
           const titleId = `exp-${entry.id}-title`;
           const detailsId = `exp-${entry.id}-details`;
           return (
             <TimelineRow meta={entry.meta} id={`exp-${entry.id}`}>
-              <h4 class="exp-title" id={titleId}>
+              <h3 class="exp-title" id={titleId}>
                 {entry.title}
-              </h4>
+              </h3>
               <dl class="exp-facts">
                 <div class="exp-fact">
                   <dt>설명</dt>
@@ -162,8 +157,7 @@ const LABEL_OPEN = '접기';
           );
         })
       }
-    </ol>
-  </Subsection>
+  </ol>
 </HomeSection>
 
 <script>

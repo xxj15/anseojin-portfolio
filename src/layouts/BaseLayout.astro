@@ -66,7 +66,7 @@ const ogImageUrl = absoluteUrl(ogImage.src);
 /**
  * 레거시 해시 경로(EXPERIENCE.md State Patterns › 레거시 해시 경로). 이미 제출한 지원서 링크를 보호한다.
  * #/about → 홈 최상단, #/projects/<slug> → /projects/<slug>/, #/projects와 없는 slug → /#projects(예전 프로젝트 목록 탭),
- * #/tech → /#experience, #/activities → /#activities, 그 밖의 #/… → 홈 최상단.
+ * #/tech → /#tech-stack(예전 Tech 탭), #/activities → /#activities, 그 밖의 #/… → 홈 최상단.
  * '#/'로 시작하지 않는 해시(#projects 같은 일반 앵커)는 건드리지 않는다.
  */
 const legacyRedirect = {
@@ -93,7 +93,7 @@ const PRETENDARD_CSS =
           // 끝 슬래시: 정적 호스팅(GitHub Pages)이 /projects/<slug> → /projects/<slug>/로 한 번 더 보내는 것을 줄인다
           target += legacySlugs.indexOf(route[1]) !== -1 ? 'projects/' + route[1] + '/' : '#projects';
         } else if (route[0] === 'tech') {
-          target += '#experience';
+          target += '#tech-stack';
         } else if (route[0] === 'activities') {
           target += '#activities';
         }
