@@ -723,13 +723,13 @@ test.describe('AC: 키보드', () => {
       return focusables.length;
     });
     // 읽기 순서: skip · 로고 · 내비 4 (6, 히어로에는 링크 · 칩 · CTA 없음)
-    // + About: 수상 관련 링크 5(프로젝트 4 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog (10, 이메일 복사 없음)
+    // + About: 수상 관련 링크 5(프로젝트 4 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog · Blog (11, 이메일 복사 없음)
     // + Projects: 카드 8
     // + Experience: tech-chip 15 · DAILY TICK 링크 2 · 자세히 보기 1 · 물류관리 시스템 GitHub 1 (19, 닫힌 칩 목록 링크는 제외)
     // + Activities: OURWISH 프로젝트 보기 · SSAFYcial 인스타그램 · 서강투데이 인스타그램 · 서강투데이 책자
     //   · Mash UP(DevOops 프로젝트 보기 · Next.js 스터디 GitHub · DevOops GitHub) (7)
     // (페이지 끝 contact-band는 없앴다)
-    expect(total).toBe(50);
+    expect(total).toBe(51);
 
     await page.keyboard.press('Tab');
     const skip = page.locator('.skip-link');
@@ -842,11 +842,11 @@ test.describe('AC: 문서 구조', () => {
 
   test('외부 링크는 새 탭 + ↗ + "(새 창)", 전화는 tel:, PDF는 download 링크', async ({ page, request }) => {
     await openHome(page);
-    // About 수상 UNTACT → 서강투데이 ↗ · GitHub/velog (3) + DAILY TICK 서비스/GitHub · 물류관리 시스템 GitHub (3)
+    // About 수상 UNTACT → 서강투데이 ↗ · GitHub/velog/Blog (4) + DAILY TICK 서비스/GitHub · 물류관리 시스템 GitHub (3)
     // + SSAFYcial · 서강투데이 인스타그램/책자 (3) + Mash UP Next.js 스터디 · DevOops GitHub (2).
     // 히어로 GitHub 버튼과 contact-band는 없앴다.
     const external = page.locator('a[href^="http"]');
-    await expect(external).toHaveCount(11);
+    await expect(external).toHaveCount(12);
     for (const link of await external.all()) {
       await expect(link).toHaveAttribute('target', '_blank');
       await expect(link).toHaveAttribute('rel', /noopener/);
@@ -1367,7 +1367,8 @@ test.describe('About & Contact', () => {
     await expect(block.locator('a[href^="tel:"]')).toHaveText('010-5465-2165');
     await expect(block.getByRole('button')).toHaveCount(0); // 이메일 복사 버튼 없음(사용자 결정)
     await expect(block.getByRole('link', { name: '포트폴리오 PDF 받기 (약 15MB)' })).toHaveAttribute('download', 'anseojin-portfolio.pdf');
-    await expect(block.locator('a[target="_blank"]')).toHaveText(['github.com/xxj15(새 창)', 'velog.io/@xxj15/posts(새 창)']);
+    await expect(block.locator('a[target="_blank"]')).toHaveText(['github.com/xxj15(새 창)', 'velog.io/@xxj15/posts(새 창)', 'seojin-blog.vercel.app(새 창)']);
+    await expect(block.locator('a[target="_blank"]').last()).toHaveAttribute('href', 'https://seojin-blog.vercel.app/');
     await expect(block.locator('a[target="_blank"]').first()).toHaveAttribute('href', 'https://github.com/xxj15');
   });
 });

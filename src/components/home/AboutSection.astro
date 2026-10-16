@@ -3,7 +3,7 @@
  * Home · About & Contact(#about): 프로필 사진(히어로에서 이동, rounded.lg) · 소개 · 학력·교육·어학 · Awards 전체 · 연락처 블록.
  * 연락처 블록은 사이트의 유일한 연락처다(contact-band 제거, 사용자 결정): mailto · tel · PDF 받기 · GitHub ↗ · velog ↗.
  * "이메일 복사" 버튼은 없앴다(사용자 결정 2026-10-16). 주소는 mailto 링크로 보이고 직접 복사할 수 있다.
- * 원문의 Archive(GitHub · velog)는 연락처 블록 안의 "아카이브" 묶음으로 둔다.
+ * 원문의 Archive(GitHub · velog)와 개인 블로그(사용자 추가)는 연락처 블록 안의 "아카이브" 묶음으로 둔다.
  */
 import { Image } from 'astro:assets';
 import { awards, education, profile } from '../../data/profile';
@@ -24,6 +24,7 @@ const { spacing = 'default' } = Astro.props;
 const archiveLinks = [
   { term: 'GitHub', ...contact.github },
   { term: 'velog', ...contact.velog },
+  { term: 'Blog', ...contact.blog },
 ] as const;
 ---
 

@@ -43,6 +43,7 @@ export const contact = {
   phone: { label: '010-5465-2165', href: 'tel:010-5465-2165' },
   github: { label: 'github.com/xxj15', href: 'https://github.com/xxj15' },
   velog: { label: 'velog.io/@xxj15/posts', href: 'https://velog.io/@xxj15/posts' },
+  blog: { label: 'seojin-blog.vercel.app', href: 'https://seojin-blog.vercel.app/' },
   pdf: {
     /** 버튼 문구는 "label size". size는 줄이 바뀌어도 쪼개지지 않게 한 덩어리로 둔다. */
     label: '포트폴리오 PDF 받기',
