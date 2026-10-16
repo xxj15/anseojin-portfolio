@@ -93,6 +93,6 @@ export const hero = {
 
 export const homeMeta = {
   title: '안서진 — 사용자 경험과 흐름을 설계하는 프론트엔드 개발자',
-  // 링크 미리보기 문구에는 수치를 넣지 않는다(사용자 결정 2026-10-16)
-  description: '기획과 UI/UX 디자인을 이해하고, 사용자 경험과 흐름을 설계하는 프론트엔드 개발자 안서진의 포트폴리오입니다.',
+  // 링크 미리보기는 제목 한 줄만: og:title은 저장소 이름, 설명 문구는 넣지 않는다(사용자 결정 2026-10-16)
+  ogTitle: 'anseojin-portfolio',
 } as const;

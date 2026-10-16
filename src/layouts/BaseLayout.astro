@@ -27,7 +27,10 @@ export interface OgImage {
 
 interface Props {
   title: string;
-  description: string;
+  /** 검색·링크 미리보기 설명. 없으면 description·og:description을 넣지 않는다(홈은 미리보기를 제목 한 줄로, 사용자 결정). */
+  description?: string;
+  /** 링크 미리보기 제목(og:title). 없으면 title. */
+  ogTitle?: string;
   /** 공유 미리보기 이미지. 기본은 사이트 공용 이미지(public/og/default.png). */
   ogImage?: OgImage;
   /** 기본 'website'. 상세 페이지는 'article'을 넘겨도 된다. */
@@ -48,7 +51,7 @@ const SITE_NAME = `${person.name} 포트폴리오`;
 /** 브라우저 UI 색. 라이트 모드 전용이고 내비가 흰 바탕이므로 surface-base와 같다. */
 const THEME_COLOR = '#ffffff';
 
-const { title, description, ogImage = DEFAULT_OG_IMAGE, ogType = 'website' } = Astro.props;
+const { title, description, ogTitle = title, ogImage = DEFAULT_OG_IMAGE, ogType = 'website' } = Astro.props;
 
 const siteOrigin = Astro.site ?? Astro.url;
 const absoluteUrl = (pathOrUrl: string) =>
@@ -114,7 +117,7 @@ const PRETENDARD_CSS =
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content={THEME_COLOR} />
     <title>{title}</title>
-    <meta name="description" content={description} />
+    {description && <meta name="description" content={description} />}
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {noindex && <meta name="robots" content="noindex" />}
 
@@ -127,8 +130,8 @@ const PRETENDARD_CSS =
     <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:locale" content="ko_KR" />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta property="og:title" content={ogTitle} />
+    {description && <meta property="og:description" content={description} />}
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content={String(ogImage.width)} />

@@ -29,7 +29,6 @@ const PILLARS = [
     related: 'FINCH · Boogle · DevOops',
   },
 ];
-const HOME_DESCRIPTION = '기획과 UI/UX 디자인을 이해하고, 사용자 경험과 흐름을 설계하는 프론트엔드 개발자 안서진의 포트폴리오입니다.';
 const EMAIL = 'seojini00@naver.com';
 const PROJECTS = [
   { slug: 'newlearn', name: 'NEW:LEARN' },
@@ -783,13 +782,14 @@ test.describe('AC: 문서 구조', () => {
     await openHome(page);
     await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
     await expect(page).toHaveTitle('안서진 — 사용자 경험과 흐름을 설계하는 프론트엔드 개발자');
-    // 링크 미리보기 문구에는 수치를 넣지 않는다(사용자 결정)
-    await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', HOME_DESCRIPTION);
+    // 링크 미리보기는 제목 한 줄만(사용자 결정): 설명 태그 없음, og:title은 저장소 이름
+    await expect(page.locator('meta[name="description"], meta[property="og:description"]')).toHaveCount(0);
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', 'anseojin-portfolio');
     await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
       'content',
       '안서진 · FRONTEND DEVELOPER. 기획과 UI/UX 디자인을 이해하고, 사용자 경험과 흐름을 설계하는 프론트엔드 개발자. 사용자 관점의 흐름 설계 · 기획부터 개발까지 직접 연결 · 아이디어를 실제 서비스로 완성',
     );
-    for (const selector of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[property="og:image:alt"]']) {
+    for (const selector of ['meta[property="og:image:alt"]']) {
       expect(await page.locator(selector).getAttribute('content'), selector).not.toMatch(/9,400|1위|\d+회/);
     }
 

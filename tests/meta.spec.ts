@@ -56,9 +56,9 @@ test.describe('공유 미리보기(홈)', () => {
     expect(await meta(page, 'meta[property="og:type"]')).toBe('website');
     expect(await meta(page, 'meta[property="og:site_name"]')).toBe('안서진 포트폴리오');
     expect(await meta(page, 'meta[property="og:locale"]')).toBe('ko_KR');
-    expect(await meta(page, 'meta[property="og:title"]')).toBe(await page.title());
-    expect(await meta(page, 'meta[property="og:title"]')).toContain('안서진');
-    expect(await meta(page, 'meta[property="og:description"]')).toBe(await meta(page, 'meta[name="description"]'));
+    // 홈 미리보기는 제목 한 줄만(사용자 결정): og:title은 저장소 이름, 설명 태그는 없다
+    expect(await meta(page, 'meta[property="og:title"]')).toBe('anseojin-portfolio');
+    await expect(page.locator('meta[property="og:description"], meta[name="description"]')).toHaveCount(0);
     expect(await meta(page, 'meta[property="og:url"]')).toBe(canonical);
 
     const ogImage = await meta(page, 'meta[property="og:image"]');
