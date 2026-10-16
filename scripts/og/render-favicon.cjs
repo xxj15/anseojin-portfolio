@@ -1,4 +1,4 @@
-// 임시 탭 아이콘을 scripts/og/favicon.html에서 다시 그린다 → public/favicon.ico(16·32·48), favicon-32.png, apple-touch-icon.png(180).
+// 탭 아이콘("SJ")을 scripts/og/favicon.html에서 다시 그린다 → public/favicon.ico(16·32·48), favicon-32.png, apple-touch-icon.png(180).
 // 실행: 저장소 루트에서 `node scripts/og/render-favicon.cjs [출력 폴더=public] [미리보기.png]`. 설치된 Edge와 @playwright/test를 쓰고, Pretendard는 CDN에서 받는다.
 // 브랜드 아이콘이 정해지면 이 스크립트 대신 public/의 세 파일만 바꾸면 된다(BaseLayout.astro가 링크한다).
 const fs = require('node:fs');
@@ -7,7 +7,7 @@ const { pathToFileURL } = require('node:url');
 const { chromium } = require('@playwright/test');
 
 /** 글자 잉크 폭 비율과 모서리 반경 비율. apple-touch-icon은 iOS가 모서리를 깎으므로 꽉 찬 사각형에 글자를 조금 작게. */
-const GLYPH = 0.62;
+const GLYPH = 0.68;
 const RADIUS = 0.22;
 const SPECS = {
   'favicon-16': { size: 16, radius: RADIUS, glyph: GLYPH, scale: 8 },

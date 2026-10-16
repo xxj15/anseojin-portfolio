@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
-  탭 아이콘 원본(임시, 브랜드 결정 전). render-favicon.cjs가 Edge에서 불러 canvas로 그린다.
-  primary(#406ABF) 둥근 사각형 + 흰 "안"(Pretendard 700). 글자는 잉크 상자를 재서 정확히 가운데에 둔다.
+  탭 아이콘 원본. render-favicon.cjs가 Edge에서 불러 canvas로 그린다.
+  primary(#406ABF) 둥근 사각형 + 흰 "SJ"(Pretendard 700, 사용자 결정 2026-10-16). 글자는 잉크 상자를 재서 정확히 가운데에 둔다.
   점-선-점 모티프는 내비·섹션 라벨 전용이라 쓰지 않는다(DESIGN.md Do's and Don'ts).
 -->
 <html lang="ko">
@@ -37,6 +37,7 @@
     <script>
       const PRIMARY = '#406ABF';
       const FONT = "'Pretendard Variable'";
+      const TEXT = 'SJ';
 
       /**
        * size: 출력 px, radius: 모서리 반경(폭 대비 비율, 0이면 꽉 찬 사각형),
@@ -58,15 +59,17 @@
         }
         // 기준 크기에서 잉크 폭을 재서, 잉크 폭이 glyph 비율이 되도록 글자 크기를 정한다
         ctx.font = `700 100px ${FONT}`;
-        const probe = ctx.measureText('안');
+        ctx.letterSpacing = '-2px';
+        const probe = ctx.measureText(TEXT);
         const fontSize = (S * glyph * 100) / (probe.actualBoundingBoxLeft + probe.actualBoundingBoxRight);
         ctx.font = `700 ${fontSize}px ${FONT}`;
-        const m = ctx.measureText('안');
+        ctx.letterSpacing = `${-0.02 * fontSize}px`;
+        const m = ctx.measureText(TEXT);
         const w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
         const h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
         ctx.fillStyle = '#FFFFFF';
         ctx.textBaseline = 'alphabetic';
-        ctx.fillText('안', (S - w) / 2 + m.actualBoundingBoxLeft, (S - h) / 2 + m.actualBoundingBoxAscent);
+        ctx.fillText(TEXT, (S - w) / 2 + m.actualBoundingBoxLeft, (S - h) / 2 + m.actualBoundingBoxAscent);
         if (scale === 1) return canvas;
 
         let src = canvas;
@@ -88,7 +91,7 @@
 
       /** specs: { 이름: draw 옵션 } → { 이름: PNG data URL } */
       window.renderAll = async (specs) => {
-        await document.fonts.load(`700 100px ${FONT}`, '안');
+        await document.fonts.load(`700 100px ${FONT}`, TEXT); // 동적 서브셋이라 그릴 글자로 불러와야 해당 조각을 받는다
         await document.fonts.ready;
         if (![...document.fonts].some((font) => font.status === 'loaded')) throw new Error('Pretendard를 불러오지 못했다');
         const results = {};
