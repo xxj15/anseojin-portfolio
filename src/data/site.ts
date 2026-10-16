@@ -46,9 +46,8 @@ export const contact = {
   velog: { label: 'velog.io/@xxj15/posts', href: 'https://velog.io/@xxj15/posts' },
   blog: { label: 'seojin-blog.vercel.app', href: 'https://seojin-blog.vercel.app/' },
   pdf: {
-    /** 버튼 문구는 "label size". size는 줄이 바뀌어도 쪼개지지 않게 한 덩어리로 둔다. */
+    /** 버튼 문구에 용량은 붙이지 않는다(사용자 결정 2026-10-16). */
     label: '포트폴리오 PDF 받기',
-    size: '(약 15MB)',
     /** scripts/copy-pdf.mjs가 빌드 전에 루트 PDF를 public/으로 복사한다. */
     href: '/anseojin-portfolio.pdf',
     fileName: 'anseojin-portfolio.pdf',

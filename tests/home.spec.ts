@@ -870,9 +870,9 @@ test.describe('AC: 문서 구조', () => {
     const phone = page.locator('a[href^="tel:"]');
     await expect(phone).toHaveText('010-5465-2165');
 
-    const pdf = page.getByRole('link', { name: '포트폴리오 PDF 받기 (약 15MB)' });
+    const pdf = page.getByRole('link', { name: '포트폴리오 PDF 받기' });
     await expect(pdf).toHaveCount(1);
-    await expect(page.locator('#about').getByRole('link', { name: '포트폴리오 PDF 받기 (약 15MB)' })).toHaveCount(1);
+    await expect(page.locator('#about').getByRole('link', { name: '포트폴리오 PDF 받기' })).toHaveCount(1);
     await expect(pdf).toHaveAttribute('download', 'anseojin-portfolio.pdf');
     await expect(pdf).toHaveAttribute('href', '/anseojin-portfolio.pdf');
     await expect(pdf).not.toHaveAttribute('target', /.*/);
@@ -1376,7 +1376,7 @@ test.describe('About & Contact', () => {
     await expect(block.locator('a[href^="mailto:"]')).toHaveCSS('font-size', '16px');
     await expect(block.locator('a[href^="tel:"]')).toHaveText('010-5465-2165');
     await expect(block.getByRole('button')).toHaveCount(0); // 이메일 복사 버튼 없음(사용자 결정)
-    await expect(block.getByRole('link', { name: '포트폴리오 PDF 받기 (약 15MB)' })).toHaveAttribute('download', 'anseojin-portfolio.pdf');
+    await expect(block.getByRole('link', { name: '포트폴리오 PDF 받기' })).toHaveAttribute('download', 'anseojin-portfolio.pdf');
     await expect(block.locator('a[target="_blank"]')).toHaveText(['github.com/xxj15(새 창)', 'velog.io/@xxj15/posts(새 창)', 'seojin-blog.vercel.app(새 창)']);
     await expect(block.locator('a[target="_blank"]').last()).toHaveAttribute('href', 'https://seojin-blog.vercel.app/');
     await expect(block.locator('a[target="_blank"]').first()).toHaveAttribute('href', 'https://github.com/xxj15');
