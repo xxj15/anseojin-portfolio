@@ -24,10 +24,9 @@ export interface ProjectImage {
   /**
    * shot: 화면 캡처(작은 모서리 + 옅은 외곽선)
    * device: 기기 프레임 PNG(프레임 바탕과 곱하기)
-   * plain: 그대로(이미 목업이 그려진 이미지)
-   * laptop · phone · tablet: CSS 기기 목업에 넣는다(src/components/MediaImage.astro)
+   * plain: 그대로
    */
-  kind: 'shot' | 'device' | 'plain' | 'laptop' | 'phone' | 'tablet';
+  kind: 'shot' | 'device' | 'plain';
 }
 
 export interface ProjectMedia {
@@ -75,7 +74,7 @@ export const projects: readonly Project[] = [
     },
     stack: ['React', 'TypeScript', 'SEED Design', 'D3.js'],
     media: {
-      images: [{ src: newlearnTimeline, alt: 'NEW:LEARN 이슈 타임라인 프로토타입 화면', kind: 'laptop' }],
+      images: [{ src: newlearnTimeline, alt: 'NEW:LEARN 이슈 타임라인 프로토타입 화면', kind: 'shot' }],
       inset: 'default',
     },
   },
@@ -112,7 +111,7 @@ export const projects: readonly Project[] = [
     result: { kind: 'metric', value: 21, unit: '종', label: '공용 컴포넌트 구현(37종 중)' },
     stack: ['React Native', 'TypeScript', 'Expo', 'WebRTC'],
     media: {
-      images: [{ src: banggootWeb, alt: '방긋 웹 서비스 화면', kind: 'laptop' }],
+      images: [{ src: banggootWeb, alt: '방긋 웹 서비스 화면', kind: 'shot' }],
       inset: 'default',
     },
   },
@@ -128,7 +127,7 @@ export const projects: readonly Project[] = [
     result: { kind: 'metric', value: 588, unit: '개', label: 'FE·BE 조건 조합 대조' },
     stack: ['Vue', 'TypeScript', 'Pinia', 'TailwindCSS'],
     media: {
-      images: [{ src: ourwishService, alt: 'OURWISH 서비스 화면', kind: 'laptop' }],
+      images: [{ src: ourwishService, alt: 'OURWISH 서비스 화면', kind: 'shot' }],
       inset: 'default',
     },
   },
@@ -147,7 +146,7 @@ export const projects: readonly Project[] = [
     },
     stack: ['React', 'TypeScript', 'TailwindCSS', 'Kakao Maps/Local API'],
     media: {
-      images: [{ src: boogleStart, alt: 'Boogle 시작 화면', kind: 'phone' }],
+      images: [{ src: boogleStart, alt: 'Boogle 시작 화면', kind: 'shot' }],
       inset: 'default',
     },
   },
@@ -162,7 +161,7 @@ export const projects: readonly Project[] = [
     result: { kind: 'outcome', text: '인터랙션 지연 해소', detail: '스티커 이동 중 저장 제거' },
     stack: ['Flutter', 'Dart', 'webOS', 'Luna Service API'],
     media: {
-      images: [{ src: moaHome, alt: 'Moa 홈 화면', kind: 'tablet' }],
+      images: [{ src: moaHome, alt: 'Moa 홈 화면', kind: 'shot' }],
       inset: 'default',
     },
   },
@@ -183,7 +182,7 @@ export const projects: readonly Project[] = [
     },
     stack: ['Next.js', 'TypeScript', 'TailwindCSS', 'Vercel'],
     media: {
-      images: [{ src: devoopsService, alt: 'DevOops 서비스 화면', kind: 'laptop' }],
+      images: [{ src: devoopsService, alt: 'DevOops 서비스 화면', kind: 'shot' }],
       inset: 'default',
     },
   },

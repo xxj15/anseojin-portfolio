@@ -1,11 +1,10 @@
 ---
 /**
  * 상세 헤더 미디어(7컬럼): 16:10 surface-subtle 프레임에 스크린샷을 contain으로 넣는다(세로형 화면도 잘리지 않음).
- * 시각 규칙은 카드 미디어와 같다: shot = 작은 모서리 + 옅은 외곽선, device = 프레임 바탕과 곱하기, plain = 그대로,
- * laptop · phone · tablet = CSS 기기 목업(MediaImage).
+ * 시각 규칙은 카드 미디어와 같다: shot = 작은 모서리 + 옅은 외곽선, device = 프레임 바탕과 곱하기, plain = 그대로.
  * 첫 화면 요소라 즉시 로드한다. 이미지 실패: 프레임을 유지하고 가운데에 프로젝트명(src/scripts/image-fallback.ts).
  */
-import MediaImage from '../MediaImage.astro';
+import { Image } from 'astro:assets';
 import type { ProjectImage, ProjectMedia } from '../../data/projects';
 
 interface Props {
@@ -27,10 +26,12 @@ const sizing = (image: ProjectImage) =>
 <div class:list={['header-media', { 'header-media--inset-small': media.inset === 'small' }]} data-media-frame>
   {
     media.images.map((image, index) => (
-      <MediaImage
-        image={image}
-        baseClass="header-image"
+      <Image
+        src={image.src}
+        alt={image.alt}
+        class={`header-image header-image--${image.kind}`}
         loading="eager"
+        decoding="async"
         fetchpriority={index === 0 ? 'high' : 'auto'}
         {...sizing(image)}
       />
@@ -52,7 +53,6 @@ const sizing = (image: ProjectImage) =>
     gap: var(--space-4);
     aspect-ratio: 16 / 10;
     padding: var(--space-6);
-    container-type: size;
     border-radius: var(--radius-lg);
     background: var(--surface-subtle);
     overflow: hidden;
@@ -62,7 +62,7 @@ const sizing = (image: ProjectImage) =>
     padding: var(--space-4);
   }
 
-  .header-media :global(.header-image:not(.header-image--mockup)) {
+  .header-media :global(.header-image) {
     min-width: 0;
     max-width: 100%;
     max-height: 100%;
