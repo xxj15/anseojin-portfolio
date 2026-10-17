@@ -5,10 +5,10 @@
  * hover(hover 가능한 기기)·focus-visible: 미디어 ×1.04, 카드 −4px, border-strong, hover 그림자(240ms).
  * 이미지 실패: 프레임을 유지하고 가운데에 프로젝트명을 보인다(src/scripts/image-fallback.ts).
  */
-import { Image } from 'astro:assets';
 import { formatPeriod, type Project } from '../data/projects';
 import { projectPath } from '../lib/paths';
 import Icon from './Icon.astro';
+import MediaImage from './MediaImage.astro';
 import MetricStat from './MetricStat.astro';
 import RichText from './RichText.astro';
 
@@ -41,14 +41,7 @@ const imageSizing = (image: Project['media']['images'][number]) =>
   <div class:list={['card-media', { 'card-media--inset-small': project.media.inset === 'small' }]} data-media-frame>
     {
       project.media.images.map((image) => (
-        <Image
-          src={image.src}
-          alt={image.alt}
-          class={`card-image card-image--${image.kind}`}
-          loading={eager ? 'eager' : 'lazy'}
-          decoding="async"
-          {...imageSizing(image)}
-        />
+        <MediaImage image={image} baseClass="card-image" loading={eager ? 'eager' : 'lazy'} {...imageSizing(image)} />
       ))
     }
     <span class="card-media-fallback" aria-hidden="true">{project.name}</span>
@@ -140,6 +133,8 @@ const imageSizing = (image: Project['media']['images'][number]) =>
     gap: var(--space-4);
     aspect-ratio: 16 / 10;
     padding: var(--space-6);
+    /* 기기 목업(MediaImage)이 cq 단위로 안쪽 크기에 맞춘다 */
+    container-type: size;
     border-radius: var(--radius-md);
     background: var(--surface-subtle);
     overflow: hidden;
@@ -150,12 +145,15 @@ const imageSizing = (image: Project['media']['images'][number]) =>
   }
 
   .card-media :global(.card-image) {
+    transition: transform var(--duration-card) var(--ease-standard);
+  }
+
+  .card-media :global(.card-image:not(.card-image--mockup)) {
     min-width: 0;
     max-width: 100%;
     max-height: 100%;
     width: auto;
     height: auto;
-    transition: transform var(--duration-card) var(--ease-standard);
   }
 
   .card-media :global(.card-image--shot) {
