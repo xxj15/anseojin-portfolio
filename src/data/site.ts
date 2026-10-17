@@ -73,21 +73,20 @@ export const hero = {
       number: '01',
       title: '기획',
       body: 'FINCH에서 PM을 맡았고, 캐치테이블 재구축에서 서비스 구조와 기능을 설계했습니다.', // PDF p13(FINCH PM) · p29(캐치테이블 재구축)
-      related: ['FINCH', 'NEW:LEARN', '캐치테이블 재구축'],
+      // 관련 줄은 projects.ts role에 해당 역할이 있는 프로젝트를 모두 싣는다(사용자 결정 2026-10-17)
+      related: ['NEW:LEARN', 'FINCH', '방긋', 'OURWISH', 'Boogle', 'Moa', 'DevOops', 'MoonSunPower', '캐치테이블 재구축'],
     },
     {
       number: '02',
       title: 'UI/UX 디자인',
       body: 'Figma로 와이어프레임과 주요 화면 흐름을 설계하고, 개발 핸드오프까지 직접 진행했습니다.',
-      related: ['NEW:LEARN', 'OURWISH', 'Boogle', 'MoonSunPower'],
+      related: ['NEW:LEARN', 'FINCH', '방긋', 'OURWISH', 'Boogle', 'Moa', 'MoonSunPower', '책화점'],
     },
     {
       number: '03',
       title: '개발',
-      // React·Next.js + TypeScript 프로젝트 중 상세(PDF)에 상태 관리·API 연동이 있는 것:
-      // FINCH(세션 관리·인증 Interceptor) · Boogle(Kakao API 연동) · DevOops(TanStack Query · API Client·타입). OURWISH는 Vue라 뺐다.
       body: 'React·TypeScript로 화면 구현부터 상태 관리, API 연동까지 이어지는 프론트엔드 개발을 해왔습니다.',
-      related: ['FINCH', 'Boogle', 'DevOops'],
+      related: ['NEW:LEARN', 'FINCH', '방긋', 'OURWISH', 'Boogle', 'Moa', 'DevOops', 'MoonSunPower'],
     },
   ] satisfies readonly KeywordPillar[],
 } as const;

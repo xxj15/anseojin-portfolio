@@ -16,17 +16,17 @@ const PILLARS = [
   {
     title: '기획',
     body: 'FINCH에서 PM을 맡았고, 캐치테이블 재구축에서 서비스 구조와 기능을 설계했습니다.',
-    related: 'FINCH · NEW:LEARN · 캐치테이블 재구축',
+    related: 'NEW:LEARN · FINCH · 방긋 · OURWISH · Boogle · Moa · DevOops · MoonSunPower · 캐치테이블 재구축',
   },
   {
     title: 'UI/UX 디자인',
     body: 'Figma로 와이어프레임과 주요 화면 흐름을 설계하고, 개발 핸드오프까지 직접 진행했습니다.',
-    related: 'NEW:LEARN · OURWISH · Boogle · MoonSunPower',
+    related: 'NEW:LEARN · FINCH · 방긋 · OURWISH · Boogle · Moa · MoonSunPower · 책화점',
   },
   {
     title: '개발',
     body: 'React·TypeScript로 화면 구현부터 상태 관리, API 연동까지 이어지는 프론트엔드 개발을 해왔습니다.',
-    related: 'FINCH · Boogle · DevOops',
+    related: 'NEW:LEARN · FINCH · 방긋 · OURWISH · Boogle · Moa · DevOops · MoonSunPower',
   },
 ];
 const EMAIL = 'seojini00@naver.com';
