@@ -25,7 +25,7 @@ const PILLARS = [
   },
   {
     title: '개발',
-    body: 'React·TypeScript로 화면 구현부터 상태 관리, API 연동까지 이어지는 프론트엔드 개발을 해왔습니다.',
+    body: 'React·TypeScript를 중심으로 Vue·Flutter까지, 화면 구현부터 상태 관리와 API 연동을 해왔습니다.',
     related: 'NEW:LEARN · FINCH · 방긋 · OURWISH · Boogle · Moa · DevOops · MoonSunPower',
   },
 ];
@@ -515,6 +515,24 @@ for (const width of [375, 320]) {
       await waitForScrollIdle(page);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(0);
+    });
+
+    test('히어로 관련 줄: "관련" 라벨 아래 프로젝트명이 정적 칩으로 줄 바꿈되고, 구분점은 숨기며, 이름은 한 줄을 지킨다', async ({
+      page,
+    }) => {
+      await openHome(page);
+      const pillar = page.locator('.pillar').first();
+      const label = pillar.locator('.pillar-related-label');
+      const items = pillar.locator('.pillar-related-item');
+      await expect(items).toHaveCount(9);
+      await expect(pillar.locator('.pillar-related-sep').first()).toBeHidden();
+      await expect(items.first()).toHaveCSS('background-color', 'rgb(243, 245, 248)');
+      // 라벨은 칩 위 줄에 있다
+      expect((await items.first().boundingBox())!.y).toBeGreaterThan((await label.boundingBox())!.y);
+      // 모든 칩은 한 줄 높이(32px)를 지킨다("캐치테이블 재구축"이 갈라지지 않는다)
+      for (const box of await items.evaluateAll((elements) => elements.map((e) => e.getBoundingClientRect().height))) {
+        expect(Math.round(box)).toBe(32);
+      }
     });
 
     test('Experience · Activities · About: 칩 목록과 자세히 보기를 펼쳐도 가로 스크롤이 없고, 칩·토글은 44px 이상', async ({

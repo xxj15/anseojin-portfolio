@@ -85,7 +85,8 @@ export const hero = {
     {
       number: '03',
       title: '개발',
-      body: 'React·TypeScript로 화면 구현부터 상태 관리, API 연동까지 이어지는 프론트엔드 개발을 해왔습니다.',
+      // 주력은 React·TypeScript로 앞세우고, 관련 줄의 Vue(OURWISH)·Flutter(Moa)도 덮도록 한 구절을 더했다(사용자 결정 2026-10-17)
+      body: 'React·TypeScript를 중심으로 Vue·Flutter까지, 화면 구현부터 상태 관리와 API 연동을 해왔습니다.',
       related: ['NEW:LEARN', 'FINCH', '방긋', 'OURWISH', 'Boogle', 'Moa', 'DevOops', 'MoonSunPower'],
     },
   ] satisfies readonly KeywordPillar[],

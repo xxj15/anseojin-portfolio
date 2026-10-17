@@ -48,7 +48,19 @@ const pillarsLine = headlineStart + hero.headlineLines.length;
             </p>
             <p class="pillar-related">
               <span class="pillar-related-label">관련</span>
-              <span>{pillar.related.join(' · ')}</span>
+              <span class="pillar-related-list">
+                {pillar.related.map((name, index) => (
+                  <>
+                    {/* 구분점은 앞 이름에 붙여(no-break space) 줄 맨 앞에 "·"가 오지 않게 한다 */}
+                    {index > 0 && (
+                      <span class="pillar-related-sep" aria-hidden="true">
+                        {'\u00a0· '}
+                      </span>
+                    )}
+                    <span class="pillar-related-item">{name}</span>
+                  </>
+                ))}
+              </span>
             </p>
           </li>
         ))
@@ -176,6 +188,11 @@ const pillarsLine = headlineStart + hero.headlineLines.length;
     color: var(--ink-tertiary);
   }
 
+  /* 프로젝트명 안에서는 줄을 바꾸지 않는다("캐치테이블 / 재구축"처럼 갈라지지 않게) */
+  .pillar-related-item {
+    white-space: nowrap;
+  }
+
   /* ---------- 첫 로드 리빌(줄 단위) ---------- */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) [data-hero-line] {
@@ -237,6 +254,34 @@ const pillarsLine = headlineStart + hero.headlineLines.length;
 
     .pillar-body {
       max-width: none;
+    }
+
+    /* 모바일 관련 줄: "관련" 라벨을 위로 올리고, 프로젝트명을 정적 칩(tech-chip--static과 같은 면)으로 감싸 한눈에 읽히게 한다(사용자 결정 2026-10-17) */
+    .pillar-related {
+      flex-direction: column;
+      gap: var(--space-2);
+      padding-top: var(--space-4);
+    }
+
+    .pillar-related-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .pillar-related-sep {
+      display: none;
+    }
+
+    .pillar-related-item {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 var(--space-3);
+      border-radius: var(--radius-full);
+      background: var(--surface-subtle);
+      font-weight: 600;
+      color: var(--ink-primary);
     }
   }
 </style>
