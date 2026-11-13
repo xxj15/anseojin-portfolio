@@ -143,7 +143,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
     team: '6명 (PM 1 · 디자인·FE 1 · AI 2 · BE 2)',
     extraStack: ['Vite', 'TailwindCSS', 'TanStack Query', 'Zustand', 'Axios', 'React Router'],
     plannedStack: ['Vite', 'TailwindCSS', 'D3.js', 'TanStack Query', 'Zustand', 'Axios', 'React Router'],
-    links: [{ label: '프로토타입 보기', kind: 'asset', href: PROTOTYPE_PATH }],
+    links: [service('https://newlearn.io.kr/'), { label: '프로토타입 보기', kind: 'asset', href: PROTOTYPE_PATH }],
     cases: [
       {
         label: 'STEP 01',

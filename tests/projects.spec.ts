@@ -20,7 +20,7 @@ const PROJECTS = [
 
 /** 상세 헤더 버튼(원문에 링크가 있는 것만, 첫 번째가 primary) */
 const HEADER_BUTTONS: Record<(typeof PROJECTS)[number]['slug'], readonly string[]> = {
-  newlearn: ['프로토타입 보기'],
+  newlearn: ['서비스 바로가기', '프로토타입 보기'],
   finch: ['서비스 바로가기', 'GitHub'],
   banggoot: ['서비스 바로가기', '소개 영상 보기'],
   ourwish: ['서비스 바로가기', 'GitHub'],
