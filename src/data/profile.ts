@@ -58,6 +58,7 @@ interface SkillSource {
 /**
  * 칩 목록은 예전 사이트의 Tech Skills 이미지(카테고리 5개, 이미지 속 순서)를 그대로 옮겼다.
  * SEED Design만 더했다: EXPERIENCE.md Tech chip 규칙이 NEW:LEARN의 집계 대상으로 명시한 기술이다.
+ * D3.js는 NEW:LEARN 출시(2026-11) 뒤 실제로 쓴 기술이 되어 더했다.
  */
 const SKILL_SOURCE: readonly { id: string; label: string; skills: readonly SkillSource[] }[] = [
   {
@@ -73,6 +74,7 @@ const SKILL_SOURCE: readonly { id: string; label: string; skills: readonly Skill
       { name: 'Next.js' },
       { name: 'TanStack Query' },
       { name: 'Zustand' },
+      { name: 'D3.js' },
     ],
   },
   {
@@ -116,7 +118,7 @@ const SKILL_SOURCE: readonly { id: string; label: string; skills: readonly Skill
 /**
  * 칩과 프로젝트의 연결은 각 프로젝트의 기술 스택 필드에서 만든다(EXPERIENCE.md Tech chip).
  * 상세 헤더와 같은 출처를 쓴다: 카드 스택(projects.ts) + 상세 전용 스택(project-details.ts extraStack) − 사용 예정(plannedStack).
- * 그래서 NEW:LEARN은 React · TypeScript · SEED Design만 세고, D3.js 같은 예정 스택은 세지 않는다.
+ * 사용 예정 스택은 세지 않는다(NEW:LEARN은 출시 뒤라 지금은 없다).
  */
 const normalizeTech = (value: string) => value.trim().toLowerCase();
 const toId = (value: string) =>

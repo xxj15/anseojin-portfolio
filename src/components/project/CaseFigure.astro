@@ -6,6 +6,7 @@
  *   (키보드로도 넘길 수 있게 tabindex=0 region + 이름, "옆으로 밀어 보기" 안내). 페이지 전체는 가로로 넘치지 않는다.
  * - gallery: 세로형 화면 여러 장을 같은 높이로 나란히. 줄이 좁으면 같은 비율로 함께 줄어든다(모바일은 줄바꿈).
  * - grid: 가로형 캡처를 2~3열 16:10 프레임에 contain으로, 그림마다 caption.
+ *   poster가 있는 그림은 화면 녹화(animated WebP)라 원본을 그대로 넣고, 동작 줄이기에서는 poster(정지 화면)로 바꾼다.
  * alt에는 흐름 요약을 넣는다(Accessibility Floor). 첫 화면 밖이라 lazy 로드한다.
  * 이미지 실패: 프레임을 유지하고 가운데에 프로젝트명(src/scripts/image-fallback.ts).
  */
@@ -101,23 +102,38 @@ const diagramLabel = (image: DetailImage) => image.label ?? image.alt.split(':')
 {
   layout === 'grid' && (
     <figure class="figure figure--grid">
-      <ul class="shot-grid" role="list" style={`--cols: ${gridColumns}`}>
+      <ul class:list={['shot-grid', { 'shot-grid--single': images.length === 1 }]} role="list" style={`--cols: ${gridColumns}`}>
         {images.map((image) => (
           <li class="shot">
             <div class="shot-frame" data-media-frame>
-              <Image
-                src={image.src}
-                alt={image.alt}
-                class="figure-image shot-image"
-                loading="lazy"
-                decoding="async"
-                widths={capped([480, 960, 1600], image.src.width)}
-                sizes={
-                  gridColumns >= 3
-                    ? '(min-width: 1280px) 340px, (min-width: 768px) 30vw, calc(100vw - 90px)'
-                    : '(min-width: 1280px) 520px, (min-width: 768px) 45vw, calc(100vw - 90px)'
-                }
-              />
+              {image.poster ? (
+                <picture data-motion-clip>
+                  <source media="(prefers-reduced-motion: reduce)" srcset={image.poster.src} />
+                  <img
+                    src={image.src.src}
+                    alt={image.alt}
+                    width={image.src.width}
+                    height={image.src.height}
+                    class="figure-image shot-image"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
+              ) : (
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  class="figure-image shot-image"
+                  loading="lazy"
+                  decoding="async"
+                  widths={capped([480, 960, 1600], image.src.width)}
+                  sizes={
+                    gridColumns >= 3
+                      ? '(min-width: 1280px) 340px, (min-width: 768px) 30vw, calc(100vw - 90px)'
+                      : '(min-width: 1280px) 520px, (min-width: 768px) 45vw, calc(100vw - 90px)'
+                  }
+                />
+              )}
               <span class="media-fallback" aria-hidden="true">
                 {name}
               </span>
@@ -224,6 +240,17 @@ const diagramLabel = (image: DetailImage) => image.label ?? image.alt.split(':')
     overflow: hidden;
   }
 
+  /* 화면 녹화: picture는 자리만 넘기고 img가 프레임의 flex 항목이 된다 */
+  .shot-frame picture {
+    display: contents;
+  }
+
+  /* 한 장짜리 grid(화면 녹화)는 원본 폭(960px)을 넘겨 키우지 않고, compact diagram처럼 가운데 둔다 */
+  .shot-grid--single {
+    max-width: 880px;
+    margin-inline: auto;
+  }
+
   .shot-frame :global(.shot-image) {
     max-width: 100%;
     max-height: 100%;
@@ -279,6 +306,11 @@ const diagramLabel = (image: DetailImage) => image.label ?? image.alt.split(':')
     .shot-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    /* 한 장짜리는 2열로 나누지 않는다(같은 우선순위, 뒤에 둬서 이긴다. 아래 767px 규칙이 다시 1열로 덮는다) */
+    .shot-grid--single {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   @media (max-width: 767.98px) {
@@ -307,6 +339,11 @@ const diagramLabel = (image: DetailImage) => image.label ?? image.alt.split(':')
 
     .shot-grid {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* 좁은 폭의 화면 녹화는 프레임 여백을 줄여 녹화를 조금이라도 크게 */
+    .shot-grid--single .shot-frame {
+      padding: var(--space-1);
     }
   }
 </style>

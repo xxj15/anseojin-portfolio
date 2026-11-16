@@ -2,8 +2,10 @@
  * 프로젝트 상세 콘텐츠 — slug별. 이름·기간·수상·스택·한 줄은 projects.ts에서 가져와 카드와 상세가 어긋나지 않게 한다.
  * 문구·수치·링크의 출처:
  * - 7개 프로젝트: 레거시 사이트(Anseojin Portfolio.html)의 상세 화면과 anseojin-portfolio.pdf(p5–p21)
- * - NEW:LEARN: 팀 PRD(prd-S15P31A102-2026-10-14), NEW:LEARN 디자인 시스템 v2 README, 발표 자료 README·화면(프로토타입 v15)
- * - 예정 스택·진행 단계: EXPERIENCE.md(Information Architecture, NEW:LEARN 메모)
+ * - NEW:LEARN: 팀 PRD(prd-S15P31A102-2026-10-14), NEW:LEARN 디자인 시스템 v2 README, 발표 자료 README·화면(프로토타입 v15),
+ *   구현 단계는 GitHub 공개 README(a102-NEWLEARN/NEW-LEARN .github/README.md, d01cc3b)와 팀 저장소 docs/plans
+ *   (2026-10-22-frontend-setup · 10-23-home · 10-28-issue-timeline · 11-05-mobile-check · 11-05-mobile-polish), 2026-11-16 기준 git log.
+ *   화면 녹화 3개는 위 README의 GIF를 animated WebP로 옮긴 것이다(용어사전 GIF는 팀원 기능이라 쓰지 않는다).
  * case-block 라벨은 원문 라벨을 그대로 쓴다. RESULT가 있으면 항상 마지막이다(아래 assertResultLast가 빌드에서 확인).
  * 원문에 없는 수치·사실은 쓰지 않는다.
  */
@@ -31,6 +33,12 @@ import newlearnIssueMap from '../assets/projects/details/newlearn/issue-map.png'
 import newlearnMindmap from '../assets/projects/details/newlearn/article-mindmap.png';
 import newlearnChangeList from '../assets/projects/details/newlearn/change-list-conflict.png';
 import newlearnChangeCard from '../assets/projects/details/newlearn/pattern-change-card.png';
+import newlearnIssueFlowClip from '../assets/projects/details/newlearn/issue-flow.webp';
+import newlearnIssueFlowPoster from '../assets/projects/details/newlearn/issue-flow-poster.webp';
+import newlearnMindmapClip from '../assets/projects/details/newlearn/article-mindmap.webp';
+import newlearnMindmapPoster from '../assets/projects/details/newlearn/article-mindmap-poster.webp';
+import newlearnArticleToIssueClip from '../assets/projects/details/newlearn/article-to-issue.webp';
+import newlearnArticleToIssuePoster from '../assets/projects/details/newlearn/article-to-issue-poster.webp';
 
 // ---------- types ----------
 
@@ -41,6 +49,11 @@ export interface DetailImage {
   label?: string;
   /** 그림 아래 caption(예: 캡처 날짜) */
   caption?: string;
+  /**
+   * 있으면 src는 움직이는 화면 녹화(animated WebP)다. 다시 인코딩하면 움직임이 사라질 수 있어 원본 파일을 그대로 넣고,
+   * 동작 줄이기(prefers-reduced-motion)에서는 이 정지 화면(첫 장면)을 보여 준다. grid 레이아웃에서만 쓴다.
+   */
+  poster?: ImageMetadata;
 }
 
 export interface Formula {
@@ -138,12 +151,29 @@ export const PROTOTYPE_PATH = '/prototypes/newlearn-v15.html';
 export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
   newlearn: {
     titleSummary: '이슈의 흐름을 보여 주는 AI 뉴스 서비스',
-    lead: '기사를 AI로 구조화해 마인드맵으로 보여 주고, 관련 기사를 사건 단위로 이어 이슈의 전개를 탐색하는 AI 뉴스 서비스',
-    role: 'UI/UX 디자인, 기획, 프론트엔드 개발',
+    lead: '기사 한 편을 AI로 핵심 내용 · 원인/배경 · 반응 · 전망 네 갈래 마인드맵으로 정리하고, 같은 사건을 다룬 기사를 묶어 이슈가 어떻게 흘러왔는지 보여 주는 AI 뉴스 서비스',
+    role: '프론트엔드 개발, UI/UX 디자인 · 디자인 시스템, 기획(PRD)',
     team: '6명 (PM 1 · 디자인·FE 1 · AI 2 · BE 2)',
-    extraStack: ['Vite', 'TailwindCSS', 'TanStack Query', 'Zustand', 'Axios', 'React Router'],
-    plannedStack: ['Vite', 'TailwindCSS', 'D3.js', 'TanStack Query', 'Zustand', 'Axios', 'React Router'],
-    links: [service('https://newlearn.io.kr/'), { label: '프로토타입 보기', kind: 'asset', href: PROTOTYPE_PATH }],
+    extraStack: ['Vite', 'TailwindCSS', 'TanStack Query', 'React Router', 'Axios', 'Vitest', 'MSW'],
+    // 프로토타입 링크는 STEP 04 블록 버튼에만 둔다(헤더 버튼이 셋이면 넓은 화면에서 2 + 1로 꺾인다)
+    links: [service('https://newlearn.io.kr/'), github('https://github.com/a102-NEWLEARN/NEW-LEARN')],
+    highlights: {
+      heading: '주요 구현 및 개선',
+      items: [
+        {
+          title: '기획부터 디자인 시스템까지',
+          detail: 'BMAD로 PRD를 쓰고, SEED Design 위에 NEW:LEARN 테마와 디자인 문서(DESIGN · EXPERIENCE.md)를 세워 프로토타입으로 검증',
+        },
+        {
+          title: 'D3 기반 이슈 흐름 · 기사 마인드맵 구현',
+          detail: '사건을 메인 · 서브 흐름으로 잇는 타임라인과 네 갈래 마인드맵을 확대 · 이동 · 키보드 조작까지 구현',
+        },
+        {
+          title: '실서비스 품질 검증',
+          detail: '테스트 741개, 8개 폭 × 15개 화면 모바일 점검, 동작 줄이기 · 키보드 · 스크린리더 대응',
+        },
+      ],
+    },
     cases: [
       {
         label: 'STEP 01',
@@ -151,8 +181,8 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         lead: [
           [
             '흩어진 뉴스를 ',
-            { text: '카테고리 → 이슈 → 사건 → 기사', tone: 'strong' },
-            ' 순서로 정리하고, 무엇이 바뀌었는지 원문 근거와 함께 보여 주는 웹 서비스입니다.',
+            { text: '분야 → 이슈 → 사건 → 기사', tone: 'strong' },
+            ' 순서로 정리하고, 기사 한 편의 요점과 그 기사가 속한 이슈의 흐름을 오가며 볼 수 있는 웹 서비스입니다.',
           ],
         ],
         rows: [
@@ -163,7 +193,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
                 kind: 'list',
                 items: [
                   '취업을 준비하다 보면 시사 이슈를 묻는 자소서 문항을 만나고, 면접 전에는 지원하는 산업의 최근 흐름을 설명할 수 있어야 합니다.',
-                  '하나의 이슈를 다룬 기사는 여러 언론사에 몇 주, 몇 달에 걸쳐 흩어져 있어, 무엇이 새로 나왔고 처음 보도와 무엇이 달라졌는지 직접 비교해야 합니다.',
+                  '하나의 이슈를 다룬 기사는 여러 언론사에 며칠, 몇 주에 걸쳐 흩어져 있어, 기사 한 편만 읽어서는 무슨 일이 왜 일어났고 누가 어떻게 반응했는지 한눈에 잡히지 않습니다.',
                 ],
               },
             ],
@@ -171,16 +201,16 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
           {
             label: 'STRUCTURE',
             content: [
-              { kind: 'flow', steps: ['① 이슈 에볼루션 맵', '② 사건', '③ 기사 마인드맵'] },
+              { kind: 'flow', steps: ['분야별 이슈 · 기사', '이슈 흐름', '사건', '기사 마인드맵'] },
               {
                 kind: 'list',
                 items: [
-                  [{ text: '이슈를 본다', tone: 'strong' }, ': 같은 사건의 기사를 하나로 묶고, 사건을 시간 순서로 이어 흐름과 변화 카드를 보여 줍니다.'],
-                  [{ text: '사건을 본다', tone: 'strong' }, ': 어떤 언론이 그 사건을 어떻게 보도했는지, 그 사건에서 무엇이 바뀌었는지 보여 줍니다.'],
-                  [{ text: '기사를 본다', tone: 'strong' }, ': 기사 하나의 인물·기관·사건·시점·배경·결과를 마인드맵으로 구조화합니다.'],
+                  [{ text: '이슈를 본다', tone: 'strong' }, ': 같은 사건의 기사를 묶고, 사건을 시간순으로 놓아 상황을 바꾸는 메인 흐름과 반응 · 평가의 서브 흐름으로 보여 줍니다.'],
+                  [{ text: '기사를 본다', tone: 'strong' }, ': 기사를 핵심 내용 · 원인/배경 · 반응 · 전망으로 나눠 흐름지도와 마인드맵 두 가지로 보여 줍니다.'],
+                  [{ text: '오간다', tone: 'strong' }, ': 이슈에서 사건 · 관련 기사로 내려가고, 기사에서 「이 기사가 속한 이슈 보기」로 다시 올라옵니다.'],
                 ],
               },
-              { kind: 'text', text: '기사의 진위는 판정하지 않습니다. 보도가 엇갈리면 상충 후보로 보여 주고, 판단은 근거를 본 사용자에게 맡깁니다.' },
+              { kind: 'text', text: '관심 분야 · 기사 북마크 · 관심 이슈로 개인 뉴스함을 만들고, 기사 속 모르는 말은 그 기사 문맥에 맞는 뜻으로 찾아봅니다.' },
             ],
           },
         ],
@@ -217,7 +247,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         label: 'STEP 03',
         title: 'SEED Design 기반 디자인 시스템',
         lead: [
-          '당근의 오픈소스 디자인 시스템 SEED(Apache 2.0)를 기반으로, 프로토타입마다 화면이 달라지지 않도록 NEW:LEARN 디자인 시스템을 정리했습니다.',
+          '당근의 오픈소스 디자인 시스템 SEED(Apache 2.0)를 기반으로 NEW:LEARN 디자인 시스템을 정리하고, 실제 코드의 테마와 디자인 문서까지 이어 만들었습니다.',
         ],
         rows: [
           {
@@ -226,8 +256,31 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
               {
                 kind: 'list',
                 items: [
-                  '색상 역할 · 타이포그래피 · 간격 · 모션 · 아이콘은 SEED를 그대로 쓰고, 그 위에 NEW:LEARN의 민트 브랜드 색과 로고를 더했습니다.',
-                  '라이트 테마로 고정하고, 밝은 민트는 그래픽에만, 행동을 부르는 버튼과 브랜드 글자는 진한 청록으로 나눠 글자 대비를 지켰습니다.',
+                  '글꼴 · 간격 · 모서리 · 모션 같은 기반은 SEED를 그대로 따르고, 그 위에 NEW:LEARN의 민트 브랜드 색과 로고만 얹었습니다.',
+                  [
+                    'SEED에는 브랜드 색을 바꾸는 공식 방법이 없어, SEED 컴포넌트와 Tailwind 테마가 함께 읽는 ',
+                    { text: '--seed-color-* 변수를 덮어쓰는 테마', tone: 'strong' },
+                    '를 만들었습니다. 기본 색 11개 · SEED 역할 14개 값 교체 · 새 역할 3개 · 마인드맵 가지 4색을 정하고, 화면 코드는 역할 이름으로만 색을 씁니다.',
+                  ],
+                  '테마가 디자인 문서의 색과 같은지, 당근 팔레트가 남지 않았는지, 라이트 테마로 고정됐는지를 테스트로 확인합니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'DESIGN DOCS',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  [
+                    '화면을 만들기 전에 BMAD UX로 ',
+                    { text: 'DESIGN.md(어떻게 보이나)', tone: 'strong' },
+                    '와 ',
+                    { text: 'EXPERIENCE.md(어떻게 움직이나)', tone: 'strong' },
+                    '를 먼저 쓰고, 화면을 고칠 때마다 결정 · 날짜 · 티켓을 문서에 함께 남겼습니다. 두 문서를 고친 커밋 96개 중 92개를 직접 남겼습니다.',
+                  ],
+                  '프론트엔드 파일 83개가 154곳에서 근거가 된 문서의 절을 가리켜, 코드를 읽다가 왜 이 값인지 문서로 바로 찾아갈 수 있습니다.',
                 ],
               },
             ],
@@ -256,7 +309,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       {
         label: 'STEP 04',
         title: '프로토타입',
-        lead: ['디자인 시스템으로 핵심 흐름을 화면으로 옮긴 프로토타입입니다. 아래는 v15 화면이며, 원본은 새 탭에서 직접 눌러 볼 수 있습니다.'],
+        lead: ['구현에 들어가기 전에 디자인 시스템으로 핵심 흐름을 화면으로 옮겨, 팀이 같은 그림을 보고 개발하게 했습니다. 아래는 v15 화면이며, 원본은 새 탭에서 직접 눌러 볼 수 있습니다.'],
         rows: [
           {
             content: [
@@ -286,9 +339,254 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
             ],
             action: { label: '프로토타입 보기', kind: 'asset', href: PROTOTYPE_PATH },
           },
+        ],
+      },
+      {
+        label: 'STEP 05',
+        title: '프론트엔드 구현',
+        lead: [
+          [
+            '프로토타입을 실제 서비스(newlearn.io.kr)로 옮겼습니다. 6명 팀에서 ',
+            { text: '프론트엔드를 전담해', tone: 'strong' },
+            ' React · TypeScript · D3로 화면을 구현했습니다. 아래 화면은 실제 서비스에서 녹화했습니다.',
+          ],
+        ],
+        rows: [
           {
-            label: 'NEXT',
-            content: [{ kind: 'text', text: '지금은 이 프로토타입을 바탕으로 FE 구현을 진행하고 있습니다. 진행에 따라 이 페이지를 갱신합니다.' }],
+            label: '01',
+            title: '이슈 흐름 — D3 타임라인',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  'D3 zoom으로 한 이슈의 사건을 메인 흐름(상황을 바꾸는 행위)과 서브 흐름(반응 · 평가) 두 레인에 시간순으로 놓았습니다.',
+                  [
+                    '사건이 몰린 날에도 겹치지 않도록 간격을 시간에 비례시키지 않고 ',
+                    { text: '고정 간격(같은 레인 170px · 다른 레인 110px)', tone: 'strong' },
+                    '으로 두고, 같은 시각의 사건은 아래로 쌓았습니다. 배치 계산은 순수 함수로 떼어 따로 테스트합니다.',
+                  ],
+                  '사건을 누르면 넓은 화면은 오른쪽 패널, 좁은 화면은 아래 시트로 요약과 관련 기사를 열고, 폰에서는 가로 지도 대신 세로 타임라인을 보여 줍니다.',
+                ],
+              },
+              {
+                kind: 'figure',
+                layout: 'grid',
+                images: [
+                  {
+                    src: newlearnIssueFlowClip,
+                    poster: newlearnIssueFlowPoster,
+                    alt: '이슈 흐름 화면: 메인 · 서브 흐름 타임라인에서 사건을 눌러 요약과 관련 기사 패널을 여는 모습',
+                    caption: '이슈 흐름에서 사건을 눌러 요약과 관련 기사를 엽니다',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            label: '02',
+            title: '기사 마인드맵 — 흐름지도 · 마인드맵',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '기사를 핵심 내용 · 원인/배경 · 반응 · 전망 네 갈래로 나눠, 순서대로 읽는 흐름지도와 관계를 보는 마인드맵 두 보기로 보여 줍니다.',
+                  [
+                    'force 시뮬레이션 대신 ',
+                    { text: '정해진 좌표에 노드를 놓아', tone: 'strong' },
+                    ' 열 때마다 같은 모양이 나오게 했습니다.',
+                  ],
+                  '확대 · 축소, 화면에 맞추기, 가지 포커스, 범례로 가지 숨기기, 키보드 조작, 화면을 꽉 채우는 크게 보기를 지원합니다.',
+                ],
+              },
+              {
+                kind: 'figure',
+                layout: 'grid',
+                images: [
+                  {
+                    src: newlearnMindmapClip,
+                    poster: newlearnMindmapPoster,
+                    alt: '기사 마인드맵 화면: 흐름지도에서 마인드맵으로 바꾸고 핵심 내용 가지를 눌러 다가가는 모습',
+                    caption: '흐름지도에서 마인드맵으로 바꾸고, 가지를 눌러 다가갑니다',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            label: '03',
+            title: '기사 ↔ 이슈 양방향 탐색',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '기사에서 「이 기사가 속한 이슈 보기」를 누르면, 그 기사가 속한 사건이 열린 채로 이슈 흐름에 도착합니다.',
+                  '이슈 → 사건 → 기사로 내려가는 길과 기사 → 이슈로 올라오는 길을 주소(/issues/:id?event=)로 이어, 새로 고침이나 공유한 링크에서도 같은 화면이 열립니다.',
+                ],
+              },
+              {
+                kind: 'figure',
+                layout: 'grid',
+                images: [
+                  {
+                    src: newlearnArticleToIssueClip,
+                    poster: newlearnArticleToIssuePoster,
+                    alt: '기사 화면에서 「이 기사가 속한 이슈 보기」를 눌러 해당 사건이 열린 이슈 흐름으로 이동하는 모습',
+                    caption: '기사에서 「이 기사가 속한 이슈 보기」로 이슈 흐름에 갑니다',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            label: '04',
+            title: '홈 · 검색 · 회원',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '분야 탭 · 추천 이슈 · 최신 기사로 홈을 구성하고, 회원이 고른 관심 분야와 관심 이슈를 추천 맨 앞에 둡니다.',
+                  [
+                    '통합 검색은 ',
+                    { text: '↑↓ · Enter · Esc와 ⌘/Ctrl+K', tone: 'strong' },
+                    '로 움직이는 콤보박스로 만들고, 스크린리더에 현재 줄과 결과 수를 읽어 줍니다.',
+                  ],
+                  '가입 4단계 · 로그인 후 원래 화면으로 돌아오기 · 북마크 · 관심 이슈를 만들고, 세션이 끝난 401은 TanStack Query 한 곳에서 처리합니다.',
+                  '로그인하지 않아도 둘러볼 수 있게 회원 화면만 막고, 저장을 누를 때 가입을 권합니다. 홈 화면에 앱처럼 설치할 수 있습니다(PWA).',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'STEP 06',
+        title: '문제 해결',
+        lead: ['팀 리뷰와 실제 브라우저 확인에서 찾은 문제를, 원인을 확인하고 테스트로 다시 막았습니다.'],
+        rows: [
+          {
+            label: 'ISSUE 01',
+            title: '빠른 Enter에 앞 검색어 결과가 열림',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '검색어를 바꾸고 200ms 안에 Enter를 누르면, 아직 남아 있던 앞 검색어의 결과가 열렸습니다. 결과가 오기 전 Enter를 두 번 누르면 방문 기록이 두 번 쌓이기도 했습니다.',
+                  [
+                    { text: '지금 검색어의 결과가 오기 전에는 줄을 고를 수 없게', tone: 'strong' },
+                    ' 하고, Enter는 지금 검색어의 결과를 받은 뒤 첫 줄을 열게 바꿨습니다. 기다리는 사이 Esc · Tab · 바깥 누르기로 닫으면 이동도 취소합니다.',
+                  ],
+                ],
+              },
+            ],
+          },
+          {
+            label: 'ISSUE 02',
+            title: 'D3 확대 · 포커스가 어긋남',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  [
+                    '+를 빠르게 두 번 누르면 앞 전환이 끊겨 한 번이 사라지던 것을, 현재 배율이 아닌 ',
+                    { text: '노리는 배율(targetScale)', tone: 'strong' },
+                    '을 기준으로 계산해 고쳤습니다.',
+                  ],
+                  '화면 폭을 재기 전 어림값으로 첫 배율을 정해 375px 화면에서 고른 사건이 화면 밖에 있던 것을, 폭을 잰 뒤 다시 맞추게 했습니다.',
+                  '고른 노드를 SVG 맨 뒤로 옮기면서 Tab 순서가 깨지던 것, 마우스 · 터치로 누른 노드에 키보드용 테두리가 남던 것은 마지막 입력 장치를 보고 판단하게 고쳤습니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'ISSUE 03',
+            title: 'SEED 테마에 없는 클래스',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  'top-x3 같은 위치 클래스와 -mx-x2 같은 음수 간격 클래스는 SEED 테마가 CSS를 만들지 않아, 선의 높이가 0이 되어 보이지 않거나 줄이 8px 밀렸습니다.',
+                  '빌드된 CSS에 클래스가 있는지 확인하는 것을 점검 순서에 넣고, 해당 자리는 px 값으로 바꿨습니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'ISSUE 04',
+            title: '한글이 단어 중간에서 줄바꿈됨',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '「외/환당국」처럼 단어 중간에서 줄이 바뀌었고, 화면마다 따로 막고 있었습니다.',
+                  'body 한 곳에 keep-all을 두고 SEED 아래 시트 · 서랍 본문의 break-all도 덮은 뒤, 화면마다 걸던 규칙은 지웠습니다.',
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        label: 'STEP 07',
+        title: '검증과 일하는 방식',
+        rows: [
+          {
+            label: 'TEST',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  'Vitest · Testing Library로 테스트를 쓰고, MSW로 백엔드 없이 화면만 띄우는 목 모드를 만들어 API보다 화면을 먼저 만들 수 있게 했습니다.',
+                  [
+                    '테스트는 10월 22일 28개에서 11월 6일 ',
+                    { text: '741개', tone: 'strong' },
+                    '까지 늘었습니다. 구현을 일부러 깨서 테스트가 실패하는지 보는 되돌림 확인도 함께 남겼습니다.',
+                  ],
+                  'KST 날짜 처리가 빠지면 잡히도록 테스트를 UTC 시간대로 돌립니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'MOBILE · A11Y',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  [
+                    '발표 전 Playwright로 ',
+                    { text: '8개 폭(320 ~ 1440px) × 15개 화면', tone: 'strong' },
+                    '을 재서 가로 넘침 · 겹침 · 버튼 꺾임 · 24px 미만 누름 영역을 0으로 맞췄습니다. 입력 글자는 iOS가 확대하지 않도록 16px 이상입니다.',
+                  ],
+                  'EXPERIENCE.md의 모션 규칙(작은 움직임 200ms 이하, 큰 움직임 250 ~ 300ms)을 따르고, 동작 줄이기를 켠 사용자에게는 위치 · 크기 변화를 빼고 처음부터 다 그린 화면을 보여 줍니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'PROCESS',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  '큰 작업은 Jira 티켓마다 계획 문서(바꿀 파일 · 안 바꿀 것 · 리스크 · 검증 · 되돌리는 법)를 먼저 써서 시작했습니다. 직접 쓴 계획 문서는 35개입니다.',
+                  '팀의 AI 협업 규칙에 따라 Claude Code와 함께 구현하고, 리뷰 조수가 짚은 「꼭 고칠 것」을 고친 커밋까지 계획 문서에 남겼습니다.',
+                  '화면에 필요한 API 수정 3건은 백엔드 코드에 테스트와 함께 직접 반영했습니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'RESULT',
+            content: [
+              {
+                kind: 'text',
+                text: [
+                  '6주 동안 PRD · 디자인 시스템 · 프로토타입을 거쳐 ',
+                  { text: 'newlearn.io.kr', tone: 'strong' },
+                  '을 실제 서비스로 출시했습니다. 기획 문서와 디자인 문서, 코드가 같은 결정을 가리키도록 끝까지 함께 고쳤습니다.',
+                ],
+              },
+            ],
           },
         ],
       },

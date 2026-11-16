@@ -68,7 +68,7 @@ const SECTION_ORDER = ['about', 'tech-stack', 'projects', 'experience', 'activit
 const NAV_NAMES = { about: 'About', 'tech-stack': 'Tech Stack', projects: 'Projects', experience: 'Experience', activities: 'Activities' } as const;
 /**
  * tech-chip 집계: 프로젝트 기술 스택 필드(카드 스택 + 상세 extraStack − 사용 예정) 기준. 상세 헤더의 스택과 같다.
- * NEW:LEARN은 React · TypeScript · SEED Design만 센다(D3.js 등은 사용 예정이라 제외).
+ * NEW:LEARN은 출시 뒤라 사용 예정 스택이 없다. 칩 목록에 있는 React · TypeScript · TanStack Query · D3.js · SEED Design을 센다.
  */
 const CHIP_PROJECTS: Record<string, string[]> = {
   javascript: ['msp'],
@@ -83,7 +83,8 @@ const CHIP_PROJECTS: Record<string, string[]> = {
   webrtc: ['banggoot'],
   figma: ['ourwish', 'boogle', 'moa', 'msp'],
   arcore: ['banggoot'],
-  'tanstack-query': ['devoops'],
+  'tanstack-query': ['newlearn', 'devoops'],
+  'd3-js': ['newlearn'],
   'seed-design': ['newlearn'],
   vercel: ['ourwish', 'boogle', 'devoops', 'msp'],
 };
@@ -328,10 +329,9 @@ test.describe('카드 그리드', () => {
       expect(Math.abs(left.stack - right.stack)).toBeLessThan(0.5);
     }
 
-    // 배지 자리: 진행 중 · 수상 · 빈칸
-    await expect(card(page, 'newlearn').locator('.card-badge-slot .status-pill')).toHaveText('진행 중');
-    await expect(card(page, 'newlearn').locator('.card-badge-slot svg')).toHaveCount(0);
-    for (const slug of ['finch', 'boogle', 'moa']) {
+    // 배지 자리: 수상 · 빈칸(진행 중인 프로젝트는 지금 없다)
+    await expect(page.locator('.card-badge-slot .status-pill')).toHaveCount(0);
+    for (const slug of ['newlearn', 'finch', 'boogle', 'moa']) {
       await expect(card(page, slug).locator('.card-badge-slot > *')).toHaveCount(0);
     }
     await expect(card(page, 'banggoot').locator('.award-badge')).toHaveText('SSAFY 2학기 공통 프로젝트 우수상 (1위)');
@@ -464,14 +464,14 @@ test.describe('모션 감소', () => {
 // ---------------------------------------------------------------------------
 test.describe('이미지 실패', () => {
   test('16:10 프레임을 유지하고 가운데에 프로젝트명을 보이며 alt를 유지한다', async ({ page }) => {
-    await page.route(/\/_astro\/(newlearn-timeline|msp-service)\.[^/]*\.webp/, (route) =>
+    await page.route(/\/_astro\/(newlearn-service|msp-service)\.[^/]*\.webp/, (route) =>
       route.fulfill({ status: 404, body: '' }),
     );
     await openHome(page);
     const heightBefore = (await card(page, 'devoops').boundingBox())!.height;
 
     for (const { slug, name, alt } of [
-      { slug: 'newlearn', name: 'NEW:LEARN', alt: 'NEW:LEARN 이슈 타임라인 프로토타입 화면' },
+      { slug: 'newlearn', name: 'NEW:LEARN', alt: 'NEW:LEARN 이슈 흐름 화면: 메인 · 서브 흐름 타임라인과 사건 요약 패널' },
       { slug: 'msp', name: 'MoonSunPower', alt: 'MoonSunPower 서비스 화면' },
     ]) {
       const target = card(page, slug);
@@ -747,13 +747,13 @@ test.describe('AC: 키보드', () => {
     });
     // 읽기 순서: skip · 로고 · 내비 5(About · Tech Stack · Projects · Experience · Activities) (7, 히어로에는 링크 · 칩 · CTA 없음)
     // + About: 수상 관련 링크 5(프로젝트 4 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog · Blog (11, 이메일 복사 없음)
-    // + Tech Stack: tech-chip 15 (닫힌 칩 목록 링크는 제외)
+    // + Tech Stack: tech-chip 16 (닫힌 칩 목록 링크는 제외, NEW:LEARN 출시로 D3.js가 늘어 15 → 16)
     // + Projects: 카드 8
     // + Experience: DAILY TICK 링크 2 · 자세히 보기 1 · 물류관리 시스템 GitHub 1 (4)
     // + Activities: OURWISH 프로젝트 보기 · SSAFYcial 인스타그램 · 서강투데이 인스타그램 · 서강투데이 책자
     //   · Mash UP(DevOops 프로젝트 보기 · Next.js 스터디 GitHub · DevOops GitHub) (7)
-    // (페이지 끝 contact-band는 없앴다. 내비에 Tech Stack이 늘어 51 → 52)
-    expect(total).toBe(52);
+    // (페이지 끝 contact-band는 없앴다. 내비에 Tech Stack이 늘어 51 → 52, D3.js 칩이 늘어 52 → 53)
+    expect(total).toBe(53);
 
     await page.keyboard.press('Tab');
     const skip = page.locator('.skip-link');
@@ -1083,9 +1083,9 @@ test.describe('Tech Stack: tech-chip', () => {
       );
     }
 
-    // NEW:LEARN은 React · TypeScript · SEED Design만 센다. 사용 예정인 D3.js는 칩·집계에 없다.
-    await expect(page.locator('[data-tech-chip="d3-js"], [data-tech-static="d3-js"]')).toHaveCount(0);
-    await expect(page.locator('[data-skill-panel] a[href="/projects/newlearn/"]')).toHaveCount(3);
+    // NEW:LEARN: React · TypeScript · TanStack Query · D3.js · SEED Design 5개 칩 패널에 들어간다. Zustand는 빠졌다.
+    await expect(page.locator('[data-tech-chip="d3-js"]')).toHaveCount(1);
+    await expect(page.locator('[data-skill-panel] a[href="/projects/newlearn/"]')).toHaveCount(5);
 
     for (const id of STATIC_CHIPS) {
       const target = page.locator(`[data-tech-static="${id}"]`);

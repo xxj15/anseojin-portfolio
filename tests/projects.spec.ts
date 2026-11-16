@@ -8,7 +8,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 */
 
 const PROJECTS = [
-  { slug: 'newlearn', name: 'NEW:LEARN', period: '2026.10 – 2026.11', badge: { kind: 'status', text: '진행 중' } },
+  { slug: 'newlearn', name: 'NEW:LEARN', period: '2026.10 – 2026.11' },
   { slug: 'finch', name: 'FINCH', period: '2026.08 – 2026.09' },
   { slug: 'banggoot', name: '방긋', period: '2026.07 – 2026.08', badge: { kind: 'award', text: 'SSAFY 2학기 공통 프로젝트 우수상 (1위)' } },
   { slug: 'ourwish', name: 'OURWISH', period: '2026.05 – 2026.06', badge: { kind: 'award', text: 'SSAFY 1학기 관통 프로젝트 최우수상 (1위)' } },
@@ -20,7 +20,7 @@ const PROJECTS = [
 
 /** 상세 헤더 버튼(원문에 링크가 있는 것만, 첫 번째가 primary) */
 const HEADER_BUTTONS: Record<(typeof PROJECTS)[number]['slug'], readonly string[]> = {
-  newlearn: ['서비스 바로가기', '프로토타입 보기'],
+  newlearn: ['서비스 바로가기', 'GitHub'],
   finch: ['서비스 바로가기', 'GitHub'],
   banggoot: ['서비스 바로가기', '소개 영상 보기'],
   ourwish: ['서비스 바로가기', 'GitHub'],
@@ -96,12 +96,9 @@ test.describe('상세 페이지 8개', () => {
 
       const status = page.locator('.detail-head [data-status-pill]');
       const award = page.locator('.detail-head [data-award-badge]');
+      // 진행 중인 프로젝트는 지금 없다(NEW:LEARN 2026-11 출시). status-pill 자리는 남아 있어 수상이 없으면 둘 다 없어야 한다.
       if (!('badge' in project)) {
         await expect(status).toHaveCount(0);
-        await expect(award).toHaveCount(0);
-      } else if (project.badge.kind === 'status') {
-        await expect(status).toHaveText(project.badge.text);
-        await expect(status.locator('svg')).toHaveCount(0);
         await expect(award).toHaveCount(0);
       } else {
         await expect(award).toHaveText(project.badge.text);
@@ -125,22 +122,48 @@ test.describe('상세 페이지 8개', () => {
     });
   }
 
-  test('NEW:LEARN: 아직 쓰지 않은 기술은 "사용 예정"으로 따로 보인다', async ({ page }) => {
+  test('NEW:LEARN: 출시 뒤라 "사용 예정" 스택이 없고, 기획 → 구현 → 검증 7단계로 읽힌다', async ({ page }) => {
     await openPage(page, detailPath('newlearn'));
     const used = normalize(await page.locator('[data-stack="used"]').textContent());
-    const planned = normalize(await page.locator('[data-stack="planned"]').textContent());
-    expect(used).toBe('React · TypeScript · SEED Design');
-    for (const tech of ['Vite', 'TailwindCSS', 'D3.js', 'TanStack Query', 'Zustand', 'Axios', 'React Router']) {
-      expect(planned).toContain(tech);
-      expect(used).not.toContain(tech);
-    }
-    // 진행 단계 4개: 서비스 소개 → PRD → 디자인 시스템 → 프로토타입
+    await expect(page.locator('[data-stack="planned"]')).toHaveCount(0);
+    expect(used).toBe(
+      'React · TypeScript · SEED Design · D3.js · Vite · TailwindCSS · TanStack Query · React Router · Axios · Vitest · MSW',
+    );
+    // Zustand는 쓰지 않게 되어 지웠다(팀 저장소 2026-11-16)
+    expect(used).not.toContain('Zustand');
     await expect(page.locator('section[data-case] h2')).toHaveText([
       '서비스 소개',
       'BMAD로 PRD 작성',
       'SEED Design 기반 디자인 시스템',
       '프로토타입',
+      '프론트엔드 구현',
+      '문제 해결',
+      '검증과 일하는 방식',
     ]);
+    await expect(page.locator('[data-highlights] li')).toHaveCount(3);
+  });
+
+  test('NEW:LEARN 화면 녹화: 움직이는 원본을 그대로 넣고, 동작 줄이기에서는 정지 화면으로 바뀐다', async ({ page }) => {
+    await openPage(page, detailPath('newlearn'));
+    const clips = page.locator('picture[data-motion-clip]');
+    await expect(clips).toHaveCount(3);
+    for (const clip of await clips.all()) {
+      const image = clip.locator('img');
+      // Astro 이미지 변환(재인코딩)을 거치지 않은 원본 animated WebP
+      expect(await image.getAttribute('src')).toMatch(/\.webp$/);
+      expect(await image.getAttribute('srcset')).toBeNull();
+      expect(((await image.getAttribute('alt')) ?? '').length).toBeGreaterThan(10);
+      await expect(clip.locator('source[media="(prefers-reduced-motion: reduce)"]')).toHaveCount(1);
+    }
+
+    const first = clips.first();
+    await first.scrollIntoViewIfNeeded();
+    const motionSrc = await first.locator('img').evaluate((element: HTMLImageElement) => element.currentSrc);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await expect
+      .poll(() => first.locator('img').evaluate((element: HTMLImageElement) => element.currentSrc))
+      .toMatch(/-poster\.[^/]*\.webp$/);
+    expect(motionSrc).not.toMatch(/-poster/);
   });
 
   test('Moa: 요약과 트러블슈팅만 있는 짧은 상세(케이스 블록 없음)', async ({ page }) => {
@@ -431,6 +454,17 @@ test.describe('좁은 화면', () => {
           await expect(page.locator('[data-scroll-hint]').first()).toBeVisible();
           await expect(page.locator('[data-scroll-hint]').first()).toHaveText('옆으로 밀어 보기');
           expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), slug).toBeLessThanOrEqual(0);
+        }
+      });
+
+      test('캡처 grid는 1열이고, 화면 녹화 프레임도 전폭이다', async ({ page }) => {
+        // 여러 장(newlearn STEP 04 · msp)과 한 장짜리 녹화(newlearn STEP 05)가 같은 규칙을 따른다
+        for (const slug of ['newlearn', 'msp']) {
+          await openPage(page, detailPath(slug));
+          for (const grid of await page.locator('.shot-grid').all()) {
+            const columns = await grid.evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length);
+            expect(columns, slug).toBe(1);
+          }
         }
       });
 

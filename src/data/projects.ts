@@ -6,7 +6,7 @@
 import type { ImageMetadata } from 'astro';
 import type { RichText } from './types';
 
-import newlearnTimeline from '../assets/projects/newlearn-timeline.png';
+import newlearnService from '../assets/projects/newlearn-service.jpg';
 import finchHome from '../assets/projects/finch-home.png';
 import finchPortfolio from '../assets/projects/finch-portfolio.png';
 import banggootWeb from '../assets/projects/banggoot-web.jpg';
@@ -63,19 +63,25 @@ export const projects: readonly Project[] = [
     slug: 'newlearn',
     name: 'NEW:LEARN',
     period: { start: '2026.10', end: '2026.11' },
-    status: 'in-progress',
+    status: 'completed',
     oneLiner:
-      '흩어진 뉴스를 사건 단위로 묶어 이슈의 흐름을 보여 주는 AI 뉴스 서비스에서, BMAD로 PRD를 쓰고 SEED Design 기반 디자인 시스템과 프로토타입을 만들었습니다.',
-    role: 'UI/UX 디자인 · 기획 · FE',
+      '흩어진 뉴스를 이슈의 흐름으로 보여 주는 AI 뉴스 서비스에서, PRD와 SEED Design 기반 디자인 시스템을 만들고 D3 이슈 흐름 · 기사 마인드맵까지 프론트엔드를 전담해 구현했습니다.',
+    role: 'FE · UI/UX 디자인 · 기획',
     result: {
       kind: 'outcome',
-      text: 'PRD 작성 → 디자인 시스템 구현 → 프로토타입 완성',
-      detail: [{ text: 'FE 구현', tone: 'strong' }, ' 진행 중'],
+      text: 'PRD → 디자인 시스템 → 서비스 출시',
+      detail: ['프론트엔드 테스트 ', { text: '741개', tone: 'strong' }, ' 통과'],
     },
     stack: ['React', 'TypeScript', 'SEED Design', 'D3.js'],
     media: {
-      images: [{ src: newlearnTimeline, alt: 'NEW:LEARN 이슈 타임라인 프로토타입 화면', kind: 'shot' }],
-      inset: 'default',
+      images: [
+        {
+          src: newlearnService,
+          alt: 'NEW:LEARN 이슈 흐름 화면: 메인 · 서브 흐름 타임라인과 사건 요약 패널',
+          kind: 'shot',
+        },
+      ],
+      inset: 'small',
     },
   },
   {
