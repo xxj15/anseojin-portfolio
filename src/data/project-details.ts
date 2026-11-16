@@ -5,6 +5,7 @@
  * - NEW:LEARN: 팀 PRD(prd-S15P31A102-2026-10-14), NEW:LEARN 디자인 시스템 v2 README, 발표 자료 README·화면(프로토타입 v15),
  *   구현 단계는 GitHub 공개 README(a102-NEWLEARN/NEW-LEARN .github/README.md, d01cc3b)와 팀 저장소 docs/plans
  *   (2026-10-22-frontend-setup · 10-23-home · 10-28-issue-timeline · 11-05-mobile-check · 11-05-mobile-polish), 2026-11-16 기준 git log.
+ *   ISSUE 05(Lighthouse)는 Jira 218 계획(11-16-lighthouse-fixes)과 운영 측정 결과 문서, 데모 문구는 Jira 220(11-16-demo-snapshot).
  *   화면 녹화 3개는 위 README의 GIF를 animated WebP로 옮긴 것이다(용어사전 GIF는 팀원 기능이라 쓰지 않는다).
  * case-block 라벨은 원문 라벨을 그대로 쓴다. RESULT가 있으면 항상 마지막이다(아래 assertResultLast가 빌드에서 확인).
  * 원문에 없는 수치·사실은 쓰지 않는다.
@@ -175,7 +176,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
         },
         {
           title: '실서비스 품질 검증',
-          detail: '테스트 741개, 8개 폭 × 15개 화면 모바일 점검, 동작 줄이기 · 키보드 · 스크린리더 대응',
+          detail: '테스트 741개, 8개 폭 × 15개 화면 모바일 · 접근성 점검, Lighthouse 운영 측정으로 첫 화면 개선(SEO 92 → 100)',
         },
       ],
     },
@@ -466,7 +467,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
       {
         label: 'STEP 06',
         title: '문제 해결',
-        lead: ['팀 리뷰와 실제 브라우저 확인에서 찾은 문제를, 원인을 확인하고 테스트로 다시 막았습니다.'],
+        lead: ['팀 리뷰 · 실제 브라우저 확인 · 운영 측정에서 찾은 문제를, 원인을 확인하고 테스트로 다시 막았습니다.'],
         rows: [
           {
             label: 'ISSUE 01',
@@ -524,6 +525,36 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
                 items: [
                   '「외/환당국」처럼 단어 중간에서 줄이 바뀌었고, 화면마다 따로 막고 있었습니다.',
                   'body 한 곳에 keep-all을 두고 SEED 아래 시트 · 서랍 본문의 break-all도 덮은 뒤, 화면마다 걸던 규칙은 지웠습니다.',
+                ],
+              },
+            ],
+          },
+          {
+            label: 'ISSUE 05',
+            title: '느린 첫 화면, 원인은 번들이 아니었음',
+            content: [
+              {
+                kind: 'list',
+                items: [
+                  [
+                    '화면 단위 코드 분할을 계획했지만, 고치기 전에 운영 화면 5개를 Lighthouse로 먼저 쟀습니다. 분할로 줄일 몫은 우리 번들의 ',
+                    { text: '약 14%', tone: 'strong' },
+                    '였고, 받은 JS 491KB 중 ',
+                    { text: '42%', tone: 'strong' },
+                    '는 사용 분석 스크립트였습니다.',
+                  ],
+                  [
+                    '그래서 계획을 바꿔 확실한 세 가지(robots.txt 추가 · 사용 분석 스크립트 defer · nginx 문자셋 utf-8)를 테스트부터 쓰고 고쳤습니다. 배포 뒤 5개 화면 모두 ',
+                    { text: 'SEO 92 → 100', tone: 'strong' },
+                    ', 권장사항 69 → 73, 성능 점수가 오르고 TBT가 줄었습니다(랜딩 694 → 438ms).',
+                  ],
+                  [
+                    '시뮬레이션 LCP만 늘었을 때는 되돌리지 않고, 같은 측정 기록에서 ',
+                    { text: 'analytics.js 우선순위만 바꿔 다시 계산', tone: 'strong' },
+                    '했습니다. 시뮬레이션 LCP는 8.97 → 7.52초로 달라지고 실제 LCP는 그대로여서, Lighthouse 계산 방식이 만든 숫자임을 확인했습니다.',
+                  ],
+                  'CLS 원인으로 짚힌 로고는 크기를 적어도 숫자가 그대로였습니다. layout-shift 기록을 열어, 로딩 자리보다 실제 제목 · 요약이 커서 아래가 밀린다는 것을 찾고 별도 작업으로 넘겼습니다.',
+                  '수치는 모두 모바일 시뮬레이션 조건에서 화면마다 3번 잰 가운데 값입니다.',
                 ],
               },
             ],
@@ -593,7 +624,7 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
               },
               {
                 kind: 'text',
-                text: '서버를 내린 뒤에도 화면을 둘러볼 수 있도록, 가짜 API(MSW)로 돌아가는 데모를 Vercel에 따로 올렸습니다.',
+                text: '서버를 내린 뒤에도 화면을 둘러볼 수 있도록, 11월 16일 실제 서비스에서 받은 이슈 16개 · 기사 1,938건 스냅샷을 가짜 API(MSW)로 돌려주는 데모를 Vercel에 따로 올렸습니다.',
               },
             ],
             action: { label: '데모 보기', kind: 'external', href: 'https://newlearn-issue.vercel.app/' },
