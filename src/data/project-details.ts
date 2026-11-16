@@ -155,8 +155,13 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
     role: '프론트엔드 개발, UI/UX 디자인 · 디자인 시스템, 기획(PRD)',
     team: '6명 (PM 1 · 디자인·FE 1 · AI 2 · BE 2)',
     extraStack: ['Vite', 'TailwindCSS', 'TanStack Query', 'React Router', 'Axios', 'Vitest', 'MSW'],
-    // 프로토타입 링크는 STEP 04 블록 버튼에만 둔다(헤더 버튼이 셋이면 넓은 화면에서 2 + 1로 꺾인다)
-    links: [service('https://newlearn.io.kr/'), github('https://github.com/a102-NEWLEARN/NEW-LEARN')],
+    // 데모: 서버를 내린 뒤에도 둘러볼 수 있게 가짜 API(MSW) 빌드를 Vercel에 올린 것(팀 레포 Jira 220, 2026-11-16).
+    // 프로토타입 링크는 STEP 04 블록 버튼에만 둔다.
+    links: [
+      service('https://newlearn.io.kr/'),
+      { label: '데모 보기', kind: 'external', href: 'https://newlearn-issue.vercel.app/' },
+      github('https://github.com/a102-NEWLEARN/NEW-LEARN'),
+    ],
     highlights: {
       heading: '주요 구현 및 개선',
       items: [
@@ -586,7 +591,12 @@ export const projectDetails: Record<ProjectSlug, ProjectDetail> = {
                   '을 실제 서비스로 출시했습니다. 기획 문서와 디자인 문서, 코드가 같은 결정을 가리키도록 끝까지 함께 고쳤습니다.',
                 ],
               },
+              {
+                kind: 'text',
+                text: '서버를 내린 뒤에도 화면을 둘러볼 수 있도록, 가짜 API(MSW)로 돌아가는 데모를 Vercel에 따로 올렸습니다.',
+              },
             ],
+            action: { label: '데모 보기', kind: 'external', href: 'https://newlearn-issue.vercel.app/' },
           },
         ],
       },
