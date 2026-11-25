@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>히어로 방향 1차 — 4안 비교</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/*
+  HERO DIRECTIONS · round 1 · home hero only (first 900px at 1440px wide)
+  Renderer contract: .claude/skills/bmad-ux/assets/design-directions.md
+  Governing spines: DESIGN.md (type scale, spacing, radii, nav-bar, section-label, motif rules,
+                    button, proof-chip, project-card) · EXPERIENCE.md (Hero / Proof chip / Button rows,
+                    Voice and Tone, Project Card Content Model) · .memlog.md (last entries: 기획 직무 동시 지원,
+                    '기획' 'UI/UX 디자인' '사용자 경험' 첫인상 노출, 블루가 너무 쨍함 → 색은 별도 선택)
+
+  ── 임시 색상 — 색 테마는 별도 선택 (shared by all 4 directions; NOT a palette proposal) ──
+    ink            #1C1F23   near-black, 제목·본문
+    ink-2          #4B5057   보조 문장
+    ink-3          #656B72   메타 (5.3:1 on #FFF · 4.9:1 on #F5F5F2)
+    surface        #FFFFFF
+    surface-subtle #F5F5F2   off-white (카드 미디어, 칩, 패널)
+    hairline       #E5E5E1
+    strong         #D2D3CE
+    accent         #4D6478   muted slate, HSL ≈ 208° 22% 39% — 6.2:1 on #FFF (텍스트 가능)
+    accent-press   #3D5062
+    accent-tint    #DDE4EA   키워드 밑줄 바탕 (장식)
+    accent-weak    #EDF0F2
+    motif-a        #A3B3C1   점-선-점 모티프 왼쪽 사각형 전용 (장식)
+  Direction-specific hexes: none — every direction uses only the tokens above.
+*/
+:root{
+  --ink:#1C1F23; --ink-2:#4B5057; --ink-3:#656B72;
+  --surface:#FFFFFF; --subtle:#F5F5F2; --hairline:#E5E5E1; --strong:#D2D3CE;
+  --accent:#4D6478; --accent-press:#3D5062; --accent-tint:#DDE4EA; --accent-weak:#EDF0F2;
+  --motif-a:#A3B3C1;
+  --doc-bg:#E9E9E5; --doc-ink:#1C1F23;
+  --font:"Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:light}
+body{background:var(--doc-bg);color:var(--doc-ink);font-family:var(--font);font-size:16px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+a{color:inherit;text-decoration:none}
+img{display:block}
+svg{flex:none}
+.nw{white-space:nowrap}
+
+/* =========================================================
+   DOC CHROME (review page — not part of the portfolio)
+   ========================================================= */
+.doc{padding:56px 40px 72px}
+.doc-head{display:grid;grid-template-columns:7fr 5fr;gap:40px;align-items:start}
+.kicker{font-size:13px;font-weight:600;letter-spacing:0.06em;color:var(--ink-3)}
+.doc-title{margin-top:10px;font-size:40px;font-weight:700;line-height:1.25;letter-spacing:-0.02em}
+.doc-intro{margin-top:16px;max-width:680px;font-size:17px;line-height:1.7;color:var(--ink-2)}
+.doc-intro b{color:var(--ink);font-weight:600}
+.keep{margin-top:20px;max-width:720px;font-size:14px;line-height:1.7;color:var(--ink-2)}
+.keep b{font-weight:600;color:var(--ink)}
+
+.palette{padding:22px 24px 24px;border-radius:16px;background:var(--surface);border:2px dashed #B9BAB4}
+.palette-tag{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:9999px;background:var(--ink);color:#fff;font-size:14px;font-weight:600}
+.palette-tag svg{width:16px;height:16px}
+.palette p{margin-top:12px;font-size:14px;line-height:1.6;color:var(--ink-2)}
+.swatches{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:16px}
+.sw{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.35;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.sw i{display:block;height:44px;border-radius:8px;border:1px solid rgba(28,31,35,0.08)}
+.sw b{font-weight:600;color:var(--ink)}
+
+.index{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px}
+.index a{display:flex;gap:14px;padding:16px 18px;border-radius:14px;background:var(--surface);border:1px solid #DADAD5}
+.index .lt{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--ink);color:#fff;font-size:17px;font-weight:700;flex:none}
+.index .nm{font-size:16px;font-weight:700;line-height:1.4}
+.index .ps{margin-top:2px;font-size:13px;line-height:1.5;color:var(--ink-3)}
+
+.dir{margin-top:88px}
+.dir-head{display:grid;grid-template-columns:auto 1fr 400px;gap:24px 28px;align-items:start;margin-bottom:24px}
+.dir-letter{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:14px;background:var(--ink);color:#fff;font-size:26px;font-weight:700}
+.dir-name{font-size:28px;font-weight:700;line-height:1.3;letter-spacing:-0.01em}
+.dir-persona{margin-top:4px;font-size:15px;font-weight:600;color:var(--accent)}
+.dir-why{margin-top:12px;max-width:760px;font-size:16px;line-height:1.75;color:var(--ink-2)}
+.dir-why b{color:var(--ink);font-weight:600}
+.dir-meta{display:flex;flex-direction:column;gap:0;border-top:1px solid #CFCFCA}
+.dir-meta div{display:grid;grid-template-columns:88px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid #CFCFCA;font-size:14px;line-height:1.55}
+.dir-meta dt{color:var(--ink-3);font-weight:500}
+.dir-meta dd{color:var(--ink);font-weight:500}
+.dir-meta .flag dd{color:#7A4B12}
+.dir-meta .flag dt{color:#7A4B12;font-weight:600}
+
+.browser{border-radius:14px;overflow:hidden;background:var(--surface);border:1px solid #CFCFCA;box-shadow:0 18px 48px rgba(28,31,35,0.10)}
+.chrome{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;background:#F3F3F0;border-bottom:1px solid #DADAD5}
+.chrome .dots{display:flex;gap:7px}
+.chrome .dots i{width:11px;height:11px;border-radius:50%;background:#D6D6D1}
+.chrome .url{flex:1;display:flex;align-items:center;height:26px;max-width:520px;padding:0 12px;border-radius:7px;background:#fff;border:1px solid #E2E2DE;font-size:12px;color:var(--ink-3)}
+.chrome .tmp{margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:9999px;border:1px dashed #A9AAA4;font-size:12px;font-weight:600;color:var(--ink-2)}
+.fold-note{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--ink-3)}
+
+/* =========================================================
+   VIEWPORT — 1440 × 900 hero, shown at 94.4% (1360px frame)
+   ========================================================= */
+.vp{position:relative;width:1440px;height:900px;overflow:hidden;zoom:0.94444;background:var(--surface);color:var(--ink);font-size:16px;line-height:1.7}
+.vp .container{max-width:1280px;margin:0 auto;padding:0 40px}
+
+/* motif: dot-line-dot (nav logo + English section label only) */
+.motif{display:inline-flex;align-items:center;flex:none}
+.motif i{width:10px;height:10px;border-radius:3px;background:var(--motif-a)}
+.motif b{width:8px;height:2px;background:var(--motif-a)}
+.motif i:last-child{background:var(--accent)}
+.motif.sm i{width:7px;height:7px;border-radius:2px}
+.motif.sm b{width:8px;height:1.5px}
+
+/* nav — page top: no bottom border (DESIGN Elevation) */
+.nav{position:absolute;top:0;left:0;right:0;z-index:5;height:64px;background:rgba(255,255,255,0.92)}
+.nav .container{height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-0.01em}
+.nav-links{display:flex;gap:32px}
+.nav-links a{font-size:15px;font-weight:500;color:var(--ink-2)}
+
+/* shared hero atoms */
+.eyebrow{font-size:13px;font-weight:600;line-height:1.4;letter-spacing:0.08em;color:var(--ink-2)}
+.eyebrow .sep{display:inline-block;margin:0 8px;color:var(--strong)}
+.lead{font-size:18px;line-height:1.7;color:var(--ink-2);text-wrap:pretty}
+.lead b{font-weight:600;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px 0 14px;border-radius:9999px;background:var(--subtle);
+  font-size:14px;font-weight:500;line-height:1.5;color:var(--ink);white-space:nowrap}
+.chip svg{width:16px;height:16px;color:var(--accent)}
+.chip b{font-weight:600}
+.ctas{display:flex;gap:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:12px;font-size:16px;font-weight:600;line-height:1;white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--strong)}
+
+/* WORK peek — identical position in all 4 directions (label at y=760, card top ≈ y=861) */
+.peek{position:absolute;left:0;right:0;top:760px}
+.label{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;line-height:1.4;letter-spacing:0.08em;color:var(--accent)}
+.peek h2{margin-top:8px;font-size:36px;font-weight:700;line-height:1.3;letter-spacing:-0.02em}
+.peek .grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:28px}
+.peek .card{height:240px;padding:8px;border:1px solid var(--hairline);border-radius:20px;background:var(--surface)}
+.peek .media{display:flex;align-items:flex-start;justify-content:center;gap:16px;height:100%;padding:16px 32px 0;border-radius:12px;background:var(--subtle);overflow:hidden}
+.peek .media img{height:300px;width:auto}
+.peek .media img.web{height:auto;width:440px;border-radius:8px}
+
+/* =========================================================
+   A · 한 문장으로 — typography only, keywords inside the h1
+   ========================================================= */
+.hA{padding-top:128px}
+.hA h1{margin-top:22px;font-size:76px;font-weight:700;line-height:1.18;letter-spacing:-0.035em}
+.hA .kw{color:var(--accent);background:linear-gradient(transparent 74%, var(--accent-tint) 74%, var(--accent-tint) 92%, transparent 92%)}
+.hA-row{display:grid;grid-template-columns:repeat(12,1fr);column-gap:24px;margin-top:48px;padding-top:32px;border-top:1px solid var(--hairline)}
+.hA-left{grid-column:1 / span 6}
+.hA-left .lead{max-width:560px}
+.hA-left .ctas{margin-top:32px}
+.hA-proof{grid-column:8 / span 5;list-style:none;margin-top:-14px}
+.hA-proof li+li a{border-top:1px solid var(--hairline)}
+.hA-proof a{display:flex;align-items:center;gap:12px;height:56px;font-size:16px;font-weight:500;color:var(--ink)}
+.hA-proof a b{font-weight:700}
+.hA-proof svg.ic{width:18px;height:18px;color:var(--accent)}
+.hA-proof svg.go{width:18px;height:18px;margin-left:auto;color:var(--ink-3)}
+
+/* =========================================================
+   B · 세 개의 기둥 — identity h1 + three keyword pillars
+   ========================================================= */
+.hB{padding-top:116px}
+.hB-top{display:grid;grid-template-columns:repeat(12,1fr);column-gap:24px;align-items:end}
+.hB-top .tl{grid-column:1 / span 7}
+.hB h1{margin-top:20px;font-size:56px;font-weight:700;line-height:1.25;letter-spacing:-0.03em}
+.hB h1 em{font-style:normal;color:var(--accent)}
+.hB-side{grid-column:8 / span 5;padding-bottom:6px}
+.hB-side .ctas{margin-top:24px}
+.hB-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;list-style:none}
+.hB-pillars li{display:flex;flex-direction:column;padding-top:20px;border-top:2px solid var(--ink)}
+.hB-pillars .num{font-size:13px;font-weight:600;letter-spacing:0.08em;color:var(--accent);font-variant-numeric:tabular-nums}
+.hB-pillars h3{margin-top:6px;font-size:36px;font-weight:700;line-height:1.3;letter-spacing:-0.02em}
+.hB-pillars p{text-wrap:balance;margin-top:10px;font-size:16px;line-height:1.65;color:var(--ink-2);max-width:372px}
+.hB-pillars .where{display:flex;gap:10px;margin-top:auto;padding-top:12px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink)}
+.hB-pillars .where span:first-child{color:var(--ink-3)}
+.hB .chips{margin-top:32px}
+
+/* =========================================================
+   C · 흐름도 — identity copy left, process diagram right
+   ========================================================= */
+.hC{padding-top:120px}
+.hC-grid{display:grid;grid-template-columns:repeat(12,1fr);column-gap:24px;align-items:center}
+.hC-copy{grid-column:1 / span 7;padding-top:8px}
+.hC h1{margin-top:20px;font-size:56px;font-weight:700;line-height:1.25;letter-spacing:-0.03em}
+.hC h1 em{font-style:normal;color:var(--accent)}
+.hC .lead{margin-top:24px;max-width:600px}
+.hC .chips{margin-top:28px;max-width:640px}
+.hC .ctas{margin-top:32px}
+.flow{grid-column:8 / span 5;position:relative;height:568px;border-radius:20px;background:var(--subtle)}
+.flow-cap{position:absolute;left:28px;top:24px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.flow svg.lines{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;width:300px;padding:14px 20px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--hairline)}
+.node .n{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:0.06em;color:var(--accent);font-variant-numeric:tabular-nums}
+.node .n i{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.node h3{margin-top:4px;font-size:22px;font-weight:700;line-height:1.35;letter-spacing:-0.01em;color:var(--ink)}
+.node p{margin-top:4px;font-size:13px;font-weight:500;line-height:1.5;color:var(--ink-2)}
+.node.core{background:var(--ink);border-color:var(--ink)}
+.node.core .n{color:#C9D2DA}
+.node.core .n i{background:#C9D2DA}
+.node.core h3{color:#fff}
+.node.core p{color:#C3C7CC}
+.hand{position:absolute;display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:9999px;background:var(--surface);border:1px dashed var(--strong);font-size:12px;font-weight:600;color:var(--ink-2)}
+
+/* =========================================================
+   D · 작업물 먼저 — narrow copy left, real-work bento bleeding right
+   ========================================================= */
+.hD{position:relative;padding-top:136px}
+.hD-copy{width:548px}
+.hD h1{margin-top:20px;font-size:52px;font-weight:700;line-height:1.25;letter-spacing:-0.03em}
+.hD h1 em{font-style:normal;color:var(--accent)}
+.hD .lead{margin-top:24px}
+.hD .chips{margin-top:24px}
+.hD .ctas{margin-top:28px}
+.bento{position:absolute;left:708px;top:88px;width:772px;display:grid;grid-template-columns:378px 378px;grid-template-rows:340px 264px;gap:16px}
+.tile{position:relative;display:flex;flex-direction:column;border-radius:20px;background:var(--subtle);overflow:hidden;border:1px solid var(--hairline)}
+.tile .pic{position:relative;flex:1;overflow:hidden}
+.tile .cap{display:flex;align-items:baseline;gap:10px;height:52px;padding:0 20px;background:var(--surface);border-top:1px solid var(--hairline);white-space:nowrap}
+.tile .cap .n{font-size:12px;font-weight:600;letter-spacing:0.06em;color:var(--accent);font-variant-numeric:tabular-nums;align-self:center}
+.tile .cap b{font-size:19px;font-weight:700;letter-spacing:-0.01em;color:var(--ink);align-self:center}
+.tile .cap span.p{font-size:14px;font-weight:500;color:var(--ink-3);align-self:center}
+.t1{grid-column:1 / span 2}
+.t1 .pic{display:flex;justify-content:space-evenly;padding:20px 40px 0 0}
+.t1 figure{display:flex;flex-direction:column;align-items:center;gap:8px}
+.t1 figure img{height:228px;width:auto}
+.t1 figcaption{font-size:13px;font-weight:600;color:var(--ink-2);white-space:nowrap}
+.t2 .pic img{position:absolute;left:0;top:0;width:720px;max-width:none}
+.t3 .pic img{position:absolute;left:-272px;top:-28px;width:640px;max-width:none}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- ================= DOC HEADER ================= -->
+  <header class="doc-head">
+    <div>
+      <p class="kicker">BMAD UX · 히어로 방향 1차 · 2026-10-16</p>
+      <h1 class="doc-title">첫 화면 히어로, 네 가지 방향</h1>
+      <p class="doc-intro">피드백 두 가지를 반영했습니다. 첫인상에서 <b>'기획' · 'UI/UX 디자인' · '사용자 경험'</b>이 보여야 하고, 1440px에서 비어 있던 <b>오른쪽 절반</b>을 목적 있게 채워야 합니다. 네 안은 세 키워드를 싣는 방식과 폭을 채우는 재료가 서로 다릅니다. 각 프레임은 1440 × 900 첫 화면을 94% 크기로 보여줍니다.</p>
+      <p class="keep"><b>네 안 공통</b> · 정체성 문장 원문 재료 · 세 키워드 · 증거 칩 3개(SSAFY 프로젝트 1위 2회 · 자율주행 경진대회 278팀 중 2위 · 직접 운영한 서비스 월 조회수 9,400회) · CTA 2개(프로젝트 보기, GitHub ↗) · 고정 내비 · 화면 아래 WORK 라벨과 첫 카드 윗부분(모든 안에서 같은 위치) · 프로필 사진 없음</p>
+    </div>
+    <aside class="palette" aria-label="임시 색상">
+      <span class="palette-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>임시 색상 — 색 테마는 별도 선택</span>
+      <p>네 안 모두 같은 차분한 임시 팔레트입니다. 색은 color-themes 시안에서 따로 고르니, 여기서는 <b>구성과 메시지</b>만 비교해 주세요.</p>
+      <div class="swatches">
+        <div class="sw"><i style="background:#1C1F23"></i><b>잉크</b>#1C1F23</div>
+        <div class="sw"><i style="background:#FFFFFF"></i><b>바탕</b>#FFFFFF</div>
+        <div class="sw"><i style="background:#F5F5F2"></i><b>오프화이트</b>#F5F5F2</div>
+        <div class="sw"><i style="background:#4D6478"></i><b>임시 액센트</b>#4D6478</div>
+        <div class="sw"><i style="background:#DDE4EA"></i><b>액센트 틴트</b>#DDE4EA</div>
+      </div>
+    </aside>
+  </header>
+
+  <nav class="index" aria-label="방향 목록">
+    <a href="#dir-a"><span class="lt">A</span><span><span class="nm">한 문장으로</span><span class="ps" style="display:block">타이포 중심 · 키워드를 정체성 문장 안에</span></span></a>
+    <a href="#dir-b"><span class="lt">B</span><span><span class="nm">세 개의 기둥</span><span class="ps" style="display:block">근거 중심 · 키워드를 같은 무게의 기둥 3개로</span></span></a>
+    <a href="#dir-c"><span class="lt">C</span><span><span class="nm">흐름도</span><span class="ps" style="display:block">추상 다이어그램 · 키워드를 일의 흐름 단계로</span></span></a>
+    <a href="#dir-d"><span class="lt">D</span><span><span class="nm">작업물 먼저</span><span class="ps" style="display:block">실제 이미지 · 키워드를 작업물 타일 제목으로</span></span></a>
+  </nav>
+
+  <!-- ================= A ================= -->
+  <section class="dir" id="dir-a">
+    <div class="dir-head">
+      <div class="dir-letter">A</div>
+      <div>
+        <h2 class="dir-name">한 문장으로</h2>
+        <p class="dir-persona">타이포 중심 · 차분 · 이미지 없음</p>
+        <p class="dir-why">세 키워드를 정체성 문장 자체에 넣어, <b>기획 직무 담당자</b>는 첫 줄에서 '기획과 UI/UX 디자인'을, <b>FE 리드</b>는 마지막 줄에서 '프론트엔드 개발자'를 읽습니다. 그림 없이 76px 문장이 화면 폭을 채우고, 증거 3개는 오른쪽 목록으로 정리해 네 안 중 가장 조용하고 구현 부담도 작습니다. 대신 키워드의 근거는 스크롤한 뒤 카드에서 확인하게 됩니다.</p>
+      </div>
+      <dl class="dir-meta">
+        <div><dt>키워드 위치</dt><dd>h1 문장 안 (액센트 + 옅은 밑줄)</dd></div>
+        <div><dt>폭을 채우는 것</dt><dd>76px 문장 자체, 아래 2단 줄(설명 · 증거 목록)</dd></div>
+        <div class="flag"><dt>플래그</dt><dd>새 컴포넌트 필요: 증거 목록(proof-chip의 세로 목록형 변형)</dd></div>
+        <div class="flag"><dt>문구 확인</dt><dd>h1이 「기획과 UI/UX 디자인을 이해하고, 사용자 경험과 흐름을 설계하는」으로 바뀝니다</dd></div>
+      </dl>
+    </div>
+    <div class="browser">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">포트폴리오 홈 · 1440 × 900</span><span class="tmp">임시 색상 — 색 테마는 별도 선택</span></div>
+      <div class="vp">
+        <header class="nav"><div class="container">
+          <a class="logo" href="#"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span><span>안서진</span></a>
+          <nav class="nav-links"><a href="#">Work</a><a href="#">Experience</a><a href="#">Activities</a><a href="#">About</a></nav>
+        </div></header>
+
+        <section class="hA"><div class="container">
+          <p class="eyebrow">안서진<span class="sep">·</span>FRONTEND DEVELOPER</p>
+          <h1><span class="kw">기획</span>과 <span class="kw">UI/UX 디자인</span>을 이해하고,<br><span class="kw">사용자 경험</span>과 흐름을 설계하는<br>프론트엔드 개발자</h1>
+          <div class="hA-row">
+            <div class="hA-left">
+              <p class="lead">프론트엔드 구현, 상태 관리와 API 연동까지 연결하며<br>데이터의 정확성을 함께 고민합니다.</p>
+              <div class="ctas">
+                <a class="btn btn-primary" href="#">프로젝트 보기<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+                <a class="btn btn-secondary" href="#">GitHub<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+            <ul class="hA-proof">
+              <li><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>SSAFY 프로젝트 <b>1위 2회</b></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></li>
+              <li><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>자율주행 경진대회 278팀 중 <b>2위</b></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></li>
+              <li><a href="#"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>직접 운영한 서비스 월 조회수 <b>9,400회</b></span><svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></li>
+            </ul>
+          </div>
+        </div></section>
+
+        <section class="peek"><div class="container">
+          <p class="label"><span class="motif sm" aria-hidden="true"><i></i><b></b><i></i></span>WORK</p>
+          <h2>프로젝트</h2>
+          <div class="grid">
+            <div class="card"><div class="media"><img src="img/bf967772.png" alt="FINCH 홈 화면"><img src="img/a388dcf3.png" alt="FINCH 포트폴리오 분석 화면"></div></div>
+            <div class="card"><div class="media"><img class="web" src="img/46946496.jpg" alt="방긋 웹 서비스 화면"></div></div>
+          </div>
+        </div></section>
+      </div>
+    </div>
+    <p class="fold-note"><span>프레임 아래 끝 = 1440 × 900 첫 화면 경계</span><span>WORK 라벨 y 760 · 첫 카드 윗부분 약 40px 노출</span></p>
+  </section>
+
+  <!-- ================= B ================= -->
+  <section class="dir" id="dir-b">
+    <div class="dir-head">
+      <div class="dir-letter">B</div>
+      <div>
+        <h2 class="dir-name">세 개의 기둥</h2>
+        <p class="dir-persona">구조적 · 근거 중심 · 균형 잡힌 밀도</p>
+        <p class="dir-why">정체성 문장은 그대로 두고, 그 아래에 기획 · UI/UX 디자인 · 사용자 경험을 같은 무게의 기둥 세 개로 세웁니다. <b>기획 직무 담당자</b>는 기둥마다 붙은 실제 근거(PM, Figma 핸드오프, 사용자 관점)를 읽고, <b>FE 리드</b>는 기둥 아래 프로젝트 이름을 보고 바로 카드로 넘어갑니다. 세 역량이 '별도 트랙'처럼 읽히지 않도록, 기둥 문장은 모두 같은 개발자의 근거로 씁니다.</p>
+      </div>
+      <dl class="dir-meta">
+        <div><dt>키워드 위치</dt><dd>전폭 3단 기둥의 제목 (36px)</dd></div>
+        <div><dt>폭을 채우는 것</dt><dd>오른쪽 설명·CTA 단, 아래 12컬럼 전체를 쓰는 기둥 3개</dd></div>
+        <div class="flag"><dt>플래그</dt><dd>새 컴포넌트 필요: 키워드 기둥(번호 · 키워드 · 근거 한 줄 · 관련 프로젝트)</dd></div>
+        <div><dt>문구</dt><dd>h1 원문 유지, 기둥 문장은 About · Activities 원문에서 옮김</dd></div>
+      </dl>
+    </div>
+    <div class="browser">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">포트폴리오 홈 · 1440 × 900</span><span class="tmp">임시 색상 — 색 테마는 별도 선택</span></div>
+      <div class="vp">
+        <header class="nav"><div class="container">
+          <a class="logo" href="#"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span><span>안서진</span></a>
+          <nav class="nav-links"><a href="#">Work</a><a href="#">Experience</a><a href="#">Activities</a><a href="#">About</a></nav>
+        </div></header>
+
+        <section class="hB"><div class="container">
+          <div class="hB-top">
+            <div class="tl">
+              <p class="eyebrow">안서진<span class="sep">·</span>FRONTEND DEVELOPER</p>
+              <h1>디자인을 이해하고,<br><em>사용자의 흐름을 설계하는</em><br>프론트엔드 개발자</h1>
+            </div>
+            <div class="hB-side">
+              <p class="lead">기획과 UI/UX 설계부터 프론트엔드 구현, 상태 관리와 API 연동까지 연결하며 사용자 경험과 데이터의 정확성을 함께 고민합니다.</p>
+              <div class="ctas">
+                <a class="btn btn-primary" href="#">프로젝트 보기<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+                <a class="btn btn-secondary" href="#">GitHub<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+          </div>
+          <ol class="hB-pillars">
+            <li>
+              <span class="num">01</span>
+              <h3>기획</h3>
+              <p>FINCH에서 PM을 맡았고, 사용자 불편을 분석해 서비스 구조와 기능을 설계했습니다.</p>
+              <p class="where"><span>관련</span><span>FINCH · 캐치테이블 재구축 · Moa</span></p>
+            </li>
+            <li>
+              <span class="num">02</span>
+              <h3>UI/UX 디자인</h3>
+              <p>Figma로 와이어프레임과 주요 화면 흐름을 설계하고, 개발 핸드오프까지 직접 진행했습니다.</p>
+              <p class="where"><span>관련</span><span>OURWISH · Boogle · Moa · MoonSunPower</span></p>
+            </li>
+            <li>
+              <span class="num">03</span>
+              <h3>사용자 경험</h3>
+              <p>사용자의 관점에서 문제를 발견하고, <span class="nw">사용자 경험</span>과 데이터의 정확성을 함께 고민합니다.</p>
+              <p class="where"><span>관련</span><span>방긋 · OURWISH · MoonSunPower</span></p>
+            </li>
+          </ol>
+          <div class="chips">
+            <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>SSAFY 프로젝트 <b>1위 2회</b></span></a>
+            <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>자율주행 경진대회 278팀 중 <b>2위</b></span></a>
+            <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>직접 운영한 서비스 월 조회수 <b>9,400회</b></span></a>
+          </div>
+        </div></section>
+
+        <section class="peek"><div class="container">
+          <p class="label"><span class="motif sm" aria-hidden="true"><i></i><b></b><i></i></span>WORK</p>
+          <h2>프로젝트</h2>
+          <div class="grid">
+            <div class="card"><div class="media"><img src="img/bf967772.png" alt="FINCH 홈 화면"><img src="img/a388dcf3.png" alt="FINCH 포트폴리오 분석 화면"></div></div>
+            <div class="card"><div class="media"><img class="web" src="img/46946496.jpg" alt="방긋 웹 서비스 화면"></div></div>
+          </div>
+        </div></section>
+      </div>
+    </div>
+    <p class="fold-note"><span>프레임 아래 끝 = 1440 × 900 첫 화면 경계</span><span>WORK 라벨 y 760 · 첫 카드 윗부분 약 40px 노출</span></p>
+  </section>
+
+  <!-- ================= C ================= -->
+  <section class="dir" id="dir-c">
+    <div class="dir-head">
+      <div class="dir-letter">C</div>
+      <div>
+        <h2 class="dir-name">흐름도</h2>
+        <p class="dir-persona">추상 다이어그램 · 차분 · 연결을 강조</p>
+        <p class="dir-why">'사용자의 흐름을 설계하는'을 그림으로 옮겨, 기획 → UI/UX 디자인 → 프론트엔드 구현 → 사용자 경험이 한 사람 안에서 이어진다는 것을 오른쪽에 보여줍니다. <b>기획 직무 담당자</b>는 앞 두 단계와 '개발 핸드오프'를, <b>FE 리드</b>는 가운데 짙게 칠한 '프론트엔드 구현' 단계를 먼저 봅니다. 메시지는 분명하지만 추상적이라, 실제 작업물은 스크롤해야 나옵니다.</p>
+      </div>
+      <dl class="dir-meta">
+        <div><dt>키워드 위치</dt><dd>흐름도의 단계 이름 + 설명 문장 굵은 글씨</dd></div>
+        <div><dt>폭을 채우는 것</dt><dd>오른쪽 5컬럼 흐름도 패널(기획 → 디자인 → 구현 → 경험)</dd></div>
+        <div class="flag"><dt>플래그</dt><dd>새 컴포넌트 필요: 히어로 흐름도(둥근 노드 + 곡선 화살표). 점-선-점 모티프와 다른 모양이어야 모티프 규칙과 충돌하지 않습니다</dd></div>
+        <div><dt>문구</dt><dd>h1 원문 유지, 설명 문장의 'UI/UX 설계'만 'UI/UX 디자인'으로</dd></div>
+      </dl>
+    </div>
+    <div class="browser">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">포트폴리오 홈 · 1440 × 900</span><span class="tmp">임시 색상 — 색 테마는 별도 선택</span></div>
+      <div class="vp">
+        <header class="nav"><div class="container">
+          <a class="logo" href="#"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span><span>안서진</span></a>
+          <nav class="nav-links"><a href="#">Work</a><a href="#">Experience</a><a href="#">Activities</a><a href="#">About</a></nav>
+        </div></header>
+
+        <section class="hC"><div class="container">
+          <div class="hC-grid">
+            <div class="hC-copy">
+              <p class="eyebrow">안서진<span class="sep">·</span>FRONTEND DEVELOPER</p>
+              <h1>디자인을 이해하고,<br><em>사용자의 흐름을 설계하는</em><br>프론트엔드 개발자</h1>
+              <p class="lead"><b>기획</b>과 <b>UI/UX 디자인</b>부터 프론트엔드 구현, 상태 관리와 API 연동까지 연결하며 <b>사용자 경험</b>과 데이터의 정확성을 함께 고민합니다.</p>
+              <div class="chips">
+                <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>SSAFY 프로젝트 <b>1위 2회</b></span></a>
+                <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>자율주행 경진대회 278팀 중 <b>2위</b></span></a>
+                <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>직접 운영한 서비스 월 조회수 <b>9,400회</b></span></a>
+              </div>
+              <div class="ctas">
+                <a class="btn btn-primary" href="#">프로젝트 보기<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+                <a class="btn btn-secondary" href="#">GitHub<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+              </div>
+            </div>
+
+            <div class="flow" role="img" aria-label="일하는 흐름: 기획(사용자 불편 분석, 서비스 구조 설계) → UI/UX 디자인(Figma 와이어프레임, 화면 흐름) → 개발 핸드오프 → 프론트엔드 구현(상태 관리, API 연동) → 사용자 경험(실기기 검증, 데이터 정확성, 서비스 운영)">
+              <p class="flow-cap">기획에서 사용자 경험까지</p>
+              <svg class="lines" viewBox="0 0 486 568" fill="none" aria-hidden="true">
+                <defs>
+                  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M1 1 9 5 1 9" fill="none" stroke="#4D6478" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </marker>
+                </defs>
+                <!-- n1 (20,60)  n2 (166,184)  n3 (20,308)  n4 (166,432) ; node 300w × ~100h -->
+                <path d="M320 110 C 372 110, 400 128, 400 176" stroke="#4D6478" stroke-width="1.6" marker-end="url(#arr)"/>
+                <path d="M166 234 C 116 234, 90 254, 90 300" stroke="#4D6478" stroke-width="1.6" marker-end="url(#arr)"/>
+                <path d="M320 358 C 372 358, 400 376, 400 424" stroke="#4D6478" stroke-width="1.6" marker-end="url(#arr)"/>
+              </svg>
+              <div class="node" style="left:20px;top:60px"><p class="n"><i></i>01</p><h3>기획</h3><p>사용자 불편 분석 · 서비스 구조 설계</p></div>
+              <div class="node" style="left:166px;top:184px"><p class="n"><i></i>02</p><h3>UI/UX 디자인</h3><p>Figma 와이어프레임 · 화면 흐름</p></div>
+              <span class="hand" style="left:52px;top:240px">개발 핸드오프</span>
+              <div class="node core" style="left:20px;top:308px"><p class="n"><i></i>03</p><h3>프론트엔드 구현</h3><p>상태 관리 · API 연동</p></div>
+              <div class="node" style="left:166px;top:432px"><p class="n"><i></i>04</p><h3>사용자 경험</h3><p>실기기 검증 · 데이터 정확성 · 서비스 운영</p></div>
+            </div>
+          </div>
+        </div></section>
+
+        <section class="peek"><div class="container">
+          <p class="label"><span class="motif sm" aria-hidden="true"><i></i><b></b><i></i></span>WORK</p>
+          <h2>프로젝트</h2>
+          <div class="grid">
+            <div class="card"><div class="media"><img src="img/bf967772.png" alt="FINCH 홈 화면"><img src="img/a388dcf3.png" alt="FINCH 포트폴리오 분석 화면"></div></div>
+            <div class="card"><div class="media"><img class="web" src="img/46946496.jpg" alt="방긋 웹 서비스 화면"></div></div>
+          </div>
+        </div></section>
+      </div>
+    </div>
+    <p class="fold-note"><span>프레임 아래 끝 = 1440 × 900 첫 화면 경계</span><span>WORK 라벨 y 760 · 첫 카드 윗부분 약 40px 노출</span></p>
+  </section>
+
+  <!-- ================= D ================= -->
+  <section class="dir" id="dir-d">
+    <div class="dir-head">
+      <div class="dir-letter">D</div>
+      <div>
+        <h2 class="dir-name">작업물 먼저</h2>
+        <p class="dir-persona">실제 이미지 · 대담 · 밀도 높음</p>
+        <p class="dir-why">말보다 작업물을 먼저 보여줍니다. 캐치테이블 서비스 개선(기획), OURWISH Figma 화면 설계(UI/UX 디자인), 방긋 앱 흐름(사용자 경험)을 키워드 제목을 단 실제 이미지 타일로 걸어, <b>기획 직무 담당자</b>는 산출물을, <b>FE 리드</b>는 그것이 실제로 구현된 서비스라는 점을 바로 확인합니다. 가장 화려한 대신 이미지가 정체성 문장과 시선을 다투므로 타일 수와 크기를 조절해야 합니다.</p>
+      </div>
+      <dl class="dir-meta">
+        <div><dt>키워드 위치</dt><dd>작업물 타일 3개의 제목 + 설명 문장 굵은 글씨</dd></div>
+        <div><dt>폭을 채우는 것</dt><dd>오른쪽 절반 이상의 이미지 벤토, 화면 오른쪽 끝 밖으로 이어짐</dd></div>
+        <div class="flag"><dt>플래그</dt><dd>새 컴포넌트 필요: 히어로 작업물 타일(키워드 캡션이 붙은 이미지 벤토)</dd></div>
+        <div><dt>문구</dt><dd>h1 원문 유지, 타일 캡션은 Activities · 카드 원문에서</dd></div>
+      </dl>
+    </div>
+    <div class="browser">
+      <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">포트폴리오 홈 · 1440 × 900</span><span class="tmp">임시 색상 — 색 테마는 별도 선택</span></div>
+      <div class="vp">
+        <header class="nav"><div class="container">
+          <a class="logo" href="#"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span><span>안서진</span></a>
+          <nav class="nav-links"><a href="#">Work</a><a href="#">Experience</a><a href="#">Activities</a><a href="#">About</a></nav>
+        </div></header>
+
+        <section class="hD"><div class="container">
+          <div class="hD-copy">
+            <p class="eyebrow">안서진<span class="sep">·</span>FRONTEND DEVELOPER</p>
+            <h1>디자인을 이해하고,<br><em>사용자의 흐름을 설계하는</em><br>프론트엔드 개발자</h1>
+            <p class="lead"><b>기획</b>과 <b>UI/UX 디자인</b>부터 프론트엔드 구현, 상태 관리와 API 연동까지 연결하며 <b>사용자 경험</b>과 데이터의 정확성을 함께 고민합니다.</p>
+            <div class="chips">
+              <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>SSAFY 프로젝트 <b>1위 2회</b></span></a>
+              <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg><span>자율주행 경진대회 278팀 중 <b>2위</b></span></a>
+              <a class="chip" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>직접 운영한 서비스 월 조회수 <b>9,400회</b></span></a>
+            </div>
+            <div class="ctas">
+              <a class="btn btn-primary" href="#">프로젝트 보기<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+              <a class="btn btn-secondary" href="#">GitHub<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento">
+          <a class="tile t1" href="#">
+            <div class="pic">
+              <figure><img src="img/8d44c926.png" alt="캐치테이블 재구축 프로토타입 1"><figcaption>예약 · 웨이팅 분리</figcaption></figure>
+              <figure><img src="img/9b6ce59f.png" alt="캐치테이블 재구축 프로토타입 2"><figcaption>지하철역 기반 검색</figcaption></figure>
+              <figure><img src="img/302eea6b.png" alt="캐치테이블 재구축 프로토타입 3"><figcaption>신뢰도 기반 차등 예약금</figcaption></figure>
+            </div>
+            <p class="cap"><span class="n">01</span><b>기획</b><span class="p">캐치테이블 서비스 개선 · 소프트웨어공학 수업</span></p>
+          </a>
+          <a class="tile t2" href="#">
+            <div class="pic"><img src="img/a7008ed6.jpg" alt="OURWISH 프로토타입"></div>
+            <p class="cap"><span class="n">02</span><b>UI/UX 디자인</b><span class="p">OURWISH Figma 화면 설계</span></p>
+          </a>
+          <a class="tile t3" href="#">
+            <div class="pic"><img src="img/46946496.jpg" alt="방긋 웹 서비스 화면"></div>
+            <p class="cap"><span class="n">03</span><b>사용자 경험</b><span class="p">방긋 하자 검수 흐름</span></p>
+          </a>
+        </div>
+        </section>
+
+        <section class="peek"><div class="container">
+          <p class="label"><span class="motif sm" aria-hidden="true"><i></i><b></b><i></i></span>WORK</p>
+          <h2>프로젝트</h2>
+          <div class="grid">
+            <div class="card"><div class="media"><img src="img/bf967772.png" alt="FINCH 홈 화면"><img src="img/a388dcf3.png" alt="FINCH 포트폴리오 분석 화면"></div></div>
+            <div class="card"><div class="media"><img class="web" src="img/46946496.jpg" alt="방긋 웹 서비스 화면"></div></div>
+          </div>
+        </div></section>
+      </div>
+    </div>
+    <p class="fold-note"><span>프레임 아래 끝 = 1440 × 900 첫 화면 경계</span><span>WORK 라벨 y 760 · 첫 카드 윗부분 약 40px 노출</span></p>
+  </section>
+
+</div>
+</body>
+</html>

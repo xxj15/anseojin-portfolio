@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>안서진 — 사용자 경험과 흐름을 설계하는 프론트엔드 개발자</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/*
+  KEY SCREEN · Home v2 (desktop 1440) — theme 1 슬레이트 블루 · hero A+B · 8 cards
+  Governing spine sections — check these when this mock and the spines disagree (spines win):
+    DESIGN.md      colors (theme 1 슬레이트 블루 = color-themes-1 .t1 set) · typography · rounded · spacing ·
+                   components (nav-bar, section-progress, section-label + motif, button-primary/secondary,
+                   hero, keyword pillar, proof-chip, project card, award-badge, status pill "진행 중",
+                   metric-stat, contact-band, focus-ring) · Layout & Spacing (hero height / fold, 2×4 grid) ·
+                   Elevation & Depth · Shapes · Do's and Don'ts
+    EXPERIENCE.md  Information Architecture (Home order) · Project Card Content Model (one-liners, roles,
+                   results, NEW:LEARN, proof chips = 2) · Voice and Tone · Component Patterns (Nav bar,
+                   Section progress, Button, Hero, Keyword pillar, Proof chip, Project card, Award badge,
+                   Metric stat, Contact band, Focus ring) · Interaction Primitives (card preview zoom)
+    .memlog.md     theme 1 선택 · hero A+B 혼합(h1 키워드 = 기둥 제목 1:1) · proof-chip 2개(싸피레이스 제외) ·
+                   NEW:LEARN 맨 앞 · equal-size cards · latest-first · photo out of hero · contact = phone + PDF ·
+                   dot-line-dot motif (logo + English section labels only)
+  Mock-only: elements with class .anno are review annotations, not part of the page.
+*/
+:root{
+  /* theme 1 · 슬레이트 블루 (color-themes-1.html .t1) */
+  --surface-base:#FFFFFF; --surface-subtle:#F3F5F8; --surface-inverse:#1C2333;
+  --ink-primary:#1C2333; --ink-secondary:#4B5566; --ink-tertiary:#677182;
+  --ink-on-inverse:#EEF1F5; --ink-on-inverse-muted:#A9B2C0;
+  --primary:#3D5C9C; --primary-pressed:#2F4A82; --primary-weak:#EDF1F8;--primary-tint:#DCE3F0; --on-primary:#FFFFFF;
+  --primary-on-inverse:#A3B9E3; --primary-light:#7A93C8;
+  --border-hairline:#E4E8EE; --border-strong:#CED5DF;
+  --r-sm:8px; --r-md:12px; --r-lg:20px; --r-full:9999px;
+  --container:1200px; --gutter:24px; --margin:40px; --nav-h:64px;
+  --font:"Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --shadow-hover:0 16px 40px rgba(28,35,51,0.10);   /* ink-primary #1C2333 */
+  --anno:#C026D3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:light;scroll-padding-top:var(--nav-h)}
+body{background:var(--surface-base);color:var(--ink-primary);font-family:var(--font);font-size:16px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;word-break:keep-all;overflow-wrap:break-word}
+a{color:inherit;text-decoration:none}
+img{display:block}
+svg{flex:none}
+.nw{white-space:nowrap}
+.container{max-width:calc(var(--container) + var(--margin)*2);margin:0 auto;padding:0 var(--margin)}
+
+/* motif: dot-line-dot (logo + English section labels only) */
+.motif{display:inline-flex;align-items:center;flex:none}
+.motif i{width:10px;height:10px;border-radius:3px;background:var(--primary-light)}
+.motif b{width:8px;height:2px;background:var(--primary)}
+.motif i:last-child{background:var(--primary)}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:20;height:var(--nav-h);background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-hairline)}
+.nav .container{height:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-0.01em}
+.nav-links{display:flex;gap:32px;height:100%}
+.nav-links a{position:relative;display:flex;align-items:center;height:100%;font-size:15px;font-weight:500;color:var(--ink-secondary)}
+.nav-links a[aria-current]{color:var(--ink-primary);font-weight:600}
+.nav-links a[aria-current]::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary)}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;width:32%;background:var(--primary)}
+
+/* ---------- hero (A + B) ---------- */
+.hero{padding:64px 0 72px}
+.hero-top{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gutter);align-items:end}
+.hero-id{grid-column:1 / span 8}
+.hero-side{grid-column:9 / span 4;padding-bottom:4px}
+.eyebrow{font-size:13px;font-weight:600;line-height:1.4;letter-spacing:0.08em;color:var(--ink-secondary)}
+.eyebrow .dot{display:inline-block;margin:0 8px;color:var(--border-strong)}
+.hero h1{margin-top:28px;font-size:60px;font-weight:700;line-height:1.22;letter-spacing:-0.03em;color:var(--ink-primary)}
+.hero h1 .kw{color:var(--primary);white-space:nowrap;background:linear-gradient(transparent 74%, var(--primary-tint) 74%, var(--primary-tint) 92%, transparent 92%)}  /* 키워드 액센트 밑줄(시안 A, 사용자 결정) */
+.hero .lead{font-size:18px;line-height:1.7;color:var(--ink-secondary)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px 0 14px;border-radius:var(--r-full);
+  background:var(--surface-subtle);font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-primary);white-space:nowrap}
+.chip svg{width:16px;height:16px;color:var(--primary)}
+.chip b{font-weight:600}
+.ctas{display:flex;gap:12px;margin-top:24px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border-radius:var(--r-md);
+  font-size:16px;font-weight:600;line-height:1;white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-secondary{background:var(--surface-base);color:var(--ink-primary);border:1px solid var(--border-strong)}
+
+/* keyword pillars — titles mirror the three h1 keywords 1:1 */
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gutter);margin-top:56px;list-style:none}
+.pillars li{display:flex;flex-direction:column;padding-top:20px;border-top:2px solid var(--ink-primary)}
+.pillars .num{font-size:13px;font-weight:600;line-height:1.4;letter-spacing:0.08em;color:var(--primary);font-variant-numeric:tabular-nums}
+.pillars h3{margin-top:6px;font-size:24px;font-weight:700;line-height:1.4;letter-spacing:-0.01em;color:var(--ink-primary)}
+.pillars p{margin-top:8px;max-width:372px;font-size:16px;line-height:1.65;color:var(--ink-secondary);text-wrap:balance}
+.pillars .where{display:flex;gap:10px;margin-top:auto;padding-top:12px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-primary)}
+.pillars .where span:first-child{color:var(--ink-tertiary);flex:none}
+
+/* ---------- section head ---------- */
+.label{display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;line-height:1.4;letter-spacing:0.08em;text-transform:uppercase;color:var(--primary)}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
+.section-head h2{margin-top:12px;font-size:36px;font-weight:700;line-height:1.3;letter-spacing:-0.02em}
+.section-head .meta{font-size:14px;font-weight:500;color:var(--ink-tertiary);padding-bottom:6px}
+
+/* ---------- project cards (all equal · 2 × 4) ---------- */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:var(--gutter)}
+.card{position:relative;display:flex;flex-direction:column;padding:8px;border:1px solid var(--border-hairline);border-radius:var(--r-lg);
+  background:var(--surface-base);transition:transform .24s cubic-bezier(.2,0,0,1),box-shadow .24s,border-color .24s}
+.media{position:relative;display:flex;align-items:center;justify-content:center;gap:16px;aspect-ratio:16/10;padding:32px;
+  border-radius:var(--r-md);background:var(--surface-subtle);overflow:hidden}
+.media img{max-width:100%;max-height:100%;width:auto;height:auto;transition:transform .24s cubic-bezier(.2,0,0,1)}
+.media .shot{border-radius:var(--r-sm);outline:1px solid rgba(28,35,51,0.06)}
+.media .device{mix-blend-mode:multiply}
+.media.pad-s{padding:16px}
+.body{display:flex;flex-direction:column;flex:1;padding:24px 24px 22px}
+.period{font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-tertiary);font-variant-numeric:tabular-nums}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:4px}
+.name{font-size:24px;font-weight:700;line-height:1.4;letter-spacing:-0.01em}
+.badge{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 10px;border-radius:var(--r-full);
+  background:var(--primary-weak);color:var(--primary-pressed);font-size:14px;font-weight:500;line-height:1.5;white-space:nowrap}
+.badge svg{width:14px;height:14px}
+.badge.status{padding:0 12px;background:var(--surface-subtle);color:var(--ink-secondary)}
+.oneliner{margin-top:12px;font-size:16px;line-height:1.7;color:var(--ink-secondary);text-wrap:pretty}
+.role{display:flex;gap:10px;margin-top:12px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-secondary)}
+.role span:first-child{color:var(--ink-tertiary);flex:none}
+.result{margin-top:auto;padding-top:24px}
+.result-inner{border-top:1px solid var(--border-hairline);padding-top:20px}
+.metric{display:flex;align-items:baseline;gap:2px;color:var(--primary);font-variant-numeric:tabular-nums}
+.metric .v{font-size:40px;font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+.metric .u{font-size:20px;font-weight:600;line-height:1.45}
+.metric-label{margin-top:6px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-tertiary)}
+.outcome{min-height:44px;display:flex;align-items:flex-end;font-size:20px;font-weight:600;line-height:1.45;letter-spacing:-0.01em;color:var(--ink-primary)}
+.outcome-label{margin-top:6px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-tertiary)}
+.outcome-label b{font-weight:600;color:var(--ink-secondary)}
+.stack{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;font-size:14px;font-weight:500;line-height:1.5;color:var(--ink-tertiary)}
+.stack svg{width:20px;height:20px;color:var(--ink-tertiary);transition:transform .24s,color .24s}
+
+/* state example: hover + focus-visible (one card only) */
+.card.is-state{transform:translateY(-4px);border-color:var(--border-strong);box-shadow:var(--shadow-hover);
+  outline:2px solid var(--primary);outline-offset:2px}
+.card.is-state .media img{transform:scale(1.04)}
+.card.is-state .stack svg{color:var(--primary);transform:translateX(2px)}
+
+/* ---------- contact band ---------- */
+.contact{margin-top:96px;background:var(--surface-inverse);color:var(--ink-on-inverse);padding:112px 0 96px}
+.contact .label{color:var(--primary-on-inverse)}
+.contact .motif b,.contact .motif i:last-child{background:var(--primary-on-inverse)}
+.contact-grid{display:grid;grid-template-columns:7fr 5fr;gap:var(--gutter);align-items:end}
+.contact h2{margin-top:16px;font-size:36px;font-weight:700;line-height:1.3;letter-spacing:-0.02em;color:var(--ink-on-inverse)}
+.mail{display:inline-block;margin-top:28px;font-size:32px;font-weight:600;line-height:1.3;letter-spacing:-0.02em;color:var(--primary-on-inverse);
+  text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:8px;text-decoration-color:rgba(163,185,227,0.4)}  /* primary-on-inverse @40% */
+.contact .ctas{margin-top:36px}
+.btn-on-inverse{background:transparent;color:var(--ink-on-inverse);border:1px solid rgba(238,241,245,0.28)}  /* ink-on-inverse @28% */
+.rows{border-top:1px solid rgba(238,241,245,0.12)}
+.row{display:grid;grid-template-columns:96px 1fr;align-items:center;height:64px;border-bottom:1px solid rgba(238,241,245,0.12);font-size:16px}
+.row dt{font-size:14px;font-weight:500;color:var(--ink-on-inverse-muted)}
+.row dd{display:flex;align-items:center;gap:6px;font-weight:500;color:var(--ink-on-inverse);font-variant-numeric:tabular-nums}
+.row dd a{display:inline-flex;align-items:center;gap:6px;color:var(--primary-on-inverse)}
+.row dd svg{width:16px;height:16px}
+
+/* ---------- review annotations (not part of the page) ---------- */
+.anno{position:absolute;font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:11px;line-height:1.5;color:var(--anno);letter-spacing:0}
+.anno-state{right:-112px;top:128px;width:96px;padding:8px 8px 9px;border:1px dashed var(--anno);border-radius:6px;background:#fff;font-size:10px;white-space:nowrap;word-break:normal}
+.anno-state::after{content:"";position:absolute;left:-17px;top:22px;width:16px;border-top:1px dashed var(--anno)}
+.anno-state hr{border:0;border-top:1px dashed var(--anno);margin:6px 0;opacity:.6}
+.anno-state strong{display:block;font-weight:700;letter-spacing:0.06em}
+.anno-skip{position:relative;margin-top:96px;height:0;border-top:1px dashed var(--anno)}
+.anno-skip span{position:absolute;left:50%;top:-11px;transform:translateX(-50%);padding:2px 10px;background:#fff;
+  font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--anno);white-space:nowrap}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container">
+    <a class="logo" href="#top" aria-label="안서진 홈">
+      <span class="motif" aria-hidden="true"><i></i><b></b><i></i></span>
+      <span>안서진</span>
+    </a>
+    <nav class="nav-links" aria-label="주요 섹션">
+      <a href="#work" aria-current="location">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#activities">Activities</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+  <span class="progress" aria-hidden="true"></span>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="container">
+      <div class="hero-top">
+        <div class="hero-id">
+          <p class="eyebrow">안서진<span class="dot">·</span>FRONTEND DEVELOPER</p>
+          <h1><span class="kw">기획</span>과 <span class="kw">UI/UX 디자인</span>을 이해하고,<br><span class="kw">사용자 경험</span>과 흐름을 설계하는<br>프론트엔드 개발자</h1>
+        </div>
+        <div class="hero-side">
+          <p class="lead">기획과 UI/UX 설계부터 프론트엔드 구현, 상태 관리와 API 연동까지 연결하며 사용자 경험과 데이터의 정확성을 함께 고민합니다.</p>
+          <div class="chips">
+            <a class="chip" href="#work">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg>
+              <span>SSAFY 프로젝트 <b>1위 2회</b></span>
+            </a>
+            <a class="chip" href="#msp">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+              <span>직접 운영한 서비스 월 조회수 <b>9,400회</b></span>
+            </a>
+          </div>
+          <div class="ctas">
+            <a class="btn btn-primary" href="#work">프로젝트 보기
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg></a>
+            <a class="btn btn-secondary" href="https://github.com/xxj15" target="_blank" rel="noopener">GitHub
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a>
+          </div>
+        </div>
+      </div>
+
+      <ol class="pillars" aria-label="세 가지 키워드의 근거">
+        <li>
+          <span class="num">01</span>
+          <h3>기획</h3>
+          <p>FINCH에서 PM을 맡았고, 사용자 불편을 분석해 서비스 구조와 기능을 설계했습니다.</p>
+          <p class="where"><span>관련</span><span>FINCH · NEW:LEARN · 캐치테이블 재구축</span></p>
+        </li>
+        <li>
+          <span class="num">02</span>
+          <h3>UI/UX 디자인</h3>
+          <p>Figma로 와이어프레임과 주요 화면 흐름을 설계하고, 개발 핸드오프까지 직접 진행했습니다.</p>
+          <p class="where"><span>관련</span><span>NEW:LEARN · OURWISH · Boogle · MoonSunPower</span></p>
+        </li>
+        <li>
+          <span class="num">03</span>
+          <h3>사용자 경험</h3>
+          <p>사용자의 관점에서 문제를 발견하고, <span class="nw">사용자 경험</span>과 데이터의 정확성을 함께 고민합니다.</p>
+          <p class="where"><span>관련</span><span>방긋 · OURWISH · MoonSunPower</span></p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="work" id="work">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <p class="label"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span>WORK</p>
+          <h2>프로젝트</h2>
+        </div>
+        <p class="meta">8개 프로젝트 · 최신순</p>
+      </div>
+
+      <div class="grid">
+        <!-- 1 NEW:LEARN (진행 중) -->
+        <a class="card" href="/projects/newlearn">
+          <div class="media">
+            <img class="shot" src="img/newlearn-timeline.png" alt="NEW:LEARN 이슈 타임라인 프로토타입 화면">
+          </div>
+          <div class="body">
+            <p class="period">2026.10 – 2026.11</p>
+            <div class="title-row"><h3 class="name">NEW:LEARN</h3>
+              <span class="badge status">진행 중</span></div>
+            <p class="oneliner">흩어진 뉴스를 사건 단위로 묶어 이슈의 흐름을 보여 주는 AI 뉴스 서비스에서, BMAD로 PRD를 쓰고 SEED Design 기반 디자인 시스템과 프로토타입을 만들었습니다.</p>
+            <p class="role"><span>역할</span><span>UI/UX 디자인 · 기획 · FE</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="outcome">PRD 작성 → 디자인 시스템 구현 → 프로토타입 완성</p>
+              <p class="outcome-label"><b>FE 구현</b> 진행 중</p>
+            </div></div>
+            <p class="stack"><span>React · TypeScript · SEED Design · D3.js</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 2 FINCH -->
+        <a class="card" href="/projects/finch">
+          <div class="media">
+            <img class="device" src="img/bf967772.png" alt="FINCH 홈 화면">
+            <img class="device" src="img/a388dcf3.png" alt="FINCH 포트폴리오 분석 화면">
+          </div>
+          <div class="body">
+            <p class="period">2026.08 – 2026.09</p>
+            <div class="title-row"><h3 class="name">FINCH</h3></div>
+            <p class="oneliner">PM으로 화면 20개 프로토타입과 디자인 시스템을 세우고, 배포 중 사용자가 로그아웃되던 인증 문제를 직접 해결했습니다.</p>
+            <p class="role"><span>역할</span><span>PM, UI/UX·디자인 시스템, 인증, FE</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="metric"><span class="v">20</span><span class="u">개</span></p>
+              <p class="metric-label">화면 프로토타입</p>
+            </div></div>
+            <p class="stack"><span>React · TypeScript · Spring Security · OAuth 2.0</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 3 방긋 -->
+        <a class="card" href="/projects/banggoot">
+          <div class="media">
+            <img class="shot" src="img/46946496.jpg" alt="방긋 웹 서비스 화면">
+          </div>
+          <div class="body">
+            <p class="period">2026.07 – 2026.08</p>
+            <div class="title-row"><h3 class="name">방긋</h3>
+              <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg>SSAFY 2학기 공통 프로젝트 우수상 (1위)</span></div>
+            <p class="oneliner">임대인과 세입자가 만나지 않고도 하자를 확인하도록, 검수 진입부터 <span class="nw">실시간 영상·종료</span>까지 하나의 앱 흐름으로 이었습니다.</p>
+            <p class="role"><span>역할</span><span>기획·UI/UX, React Native FE, WebRTC 검수 연동·실기기 검증</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="metric"><span class="v">21</span><span class="u">종</span></p>
+              <p class="metric-label">공용 컴포넌트 구현(37종 중)</p>
+            </div></div>
+            <p class="stack"><span>React Native · TypeScript · Expo · WebRTC</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 4 OURWISH — state example -->
+        <a class="card is-state" href="/projects/ourwish">
+          <div class="anno anno-state" aria-hidden="true"><strong>STATE</strong>:hover<br>:focus-visible<hr>미리보기 ×1.04<br>카드 −4px<br>border-strong<br>hover 그림자<br>포커스 링 2px</div>
+          <div class="media">
+            <img class="shot" src="img/cc881bec.jpg" alt="OURWISH 서비스 화면">
+          </div>
+          <div class="body">
+            <p class="period">2026.05 – 2026.06</p>
+            <div class="title-row"><h3 class="name">OURWISH</h3>
+              <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg>SSAFY 1학기 관통 프로젝트 최우수상 (1위)</span></div>
+            <p class="oneliner">공시금리 대신 ‘내가 실제로 받을 세후 수령액’으로 예·적금을 비교하게 만들고, 588개 조건 조합을 대조해 1원 차이의 원인까지 찾았습니다.</p>
+            <p class="role"><span>역할</span><span>기획·UI/UX, FE, AI 챗봇 UI·프롬프트</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="metric"><span class="v">588</span><span class="u">개</span></p>
+              <p class="metric-label">FE·BE 조건 조합 대조</p>
+            </div></div>
+            <p class="stack"><span>Vue · TypeScript · Pinia · TailwindCSS</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 5 Boogle -->
+        <a class="card" href="/projects/boogle">
+          <div class="media">
+            <img class="shot" src="img/91621dc5.jpg" alt="Boogle 시작 화면">
+          </div>
+          <div class="body">
+            <p class="period">2026.01 – 2026.07</p>
+            <div class="title-row"><h3 class="name">Boogle</h3></div>
+            <p class="oneliner">카카오 API의 지점당 45개 조회 제한을 5개 지점 분산·병렬 검색으로 넘어, 카페 밀집 지역의 후보 범위를 넓혔습니다.</p>
+            <p class="role"><span>역할</span><span>기획·UI/UX, FE</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="outcome">후보 범위 확대</p>
+              <p class="outcome-label"><b>5개</b> 중심점 분산 + Promise.all 병렬 검색</p>
+            </div></div>
+            <p class="stack"><span>React · TypeScript · TailwindCSS · Kakao Maps/Local API</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 6 Moa -->
+        <a class="card" href="/projects/moa">
+          <div class="media">
+            <img class="shot" src="img/7df56994.jpg" alt="Moa 홈 화면">
+          </div>
+          <div class="body">
+            <p class="period">2025.09 – 2025.11</p>
+            <div class="title-row"><h3 class="name">Moa</h3></div>
+            <p class="oneliner">팀장으로 webOS 스탠바이미용 가족 공유 홈 화면을 만들고, 스티커를 옮기는 동안 반복되던 저장을 없애 반응 속도를 개선했습니다.</p>
+            <p class="role"><span>역할</span><span>팀장, 기획·UI/UX, FE</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="outcome">인터랙션 지연 해소</p>
+              <p class="outcome-label">스티커 이동 중 저장 제거</p>
+            </div></div>
+            <p class="stack"><span>Flutter · Dart · webOS · Luna Service API</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 7 DevOops -->
+        <a class="card" href="/projects/devoops">
+          <div class="media">
+            <img class="shot" src="img/b5583697.png" alt="DevOops 서비스 화면">
+          </div>
+          <div class="body">
+            <p class="period">2025.09 – 2025.11</p>
+            <div class="title-row"><h3 class="name">DevOops</h3>
+              <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg>Mash UP 동아리 내 프로젝트 1위</span></div>
+            <p class="oneliner">PR로 회고 질문을 만드는 서비스에서, 바뀐 답변만 골라 저장하도록 자동 저장을 고쳐 불필요한 API 요청을 줄였습니다.</p>
+            <p class="role"><span>역할</span><span>기획, FE</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="outcome">변경된 답변만 저장</p>
+              <p class="outcome-label"><b>3초</b> 무입력 후 병렬 저장</p>
+            </div></div>
+            <p class="stack"><span>Next.js · TypeScript · TailwindCSS · Vercel</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+
+        <!-- 8 MoonSunPower -->
+        <a class="card" href="/projects/msp" id="msp">
+          <div class="media pad-s">
+            <img src="img/2bf9f4b9.png" alt="MoonSunPower 서비스 화면">
+          </div>
+          <div class="body">
+            <p class="period">2024.09 – 2025.09</p>
+            <div class="title-row"><h3 class="name">MoonSunPower</h3>
+              <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h2.5A1.5 1.5 0 0 1 21 6.5V7a4 4 0 0 1-4 4M7 5H4.5A1.5 1.5 0 0 0 3 6.5V7a4 4 0 0 0 4 4"/></svg>서강 융합기술 경진대회 특별상 (AI/SW상, 인기상)</span></div>
+            <p class="oneliner">생성형 AI 문해력 학습 서비스를 약 1년간 직접 운영했고, 2025년 3월 기준 월 조회수 9,400회·활성 사용자 318명을 기록했습니다.</p>
+            <p class="role"><span>역할</span><span>기획·UI/UX, FE, 서비스 운영</span></p>
+            <div class="result"><div class="result-inner">
+              <p class="metric"><span class="v">9,400</span><span class="u">회</span></p>
+              <p class="metric-label">월 조회수</p>
+            </div></div>
+            <p class="stack"><span>React · JavaScript · CSS Modules · Google Analytics</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="anno-wrap container" aria-hidden="true">
+    <div class="anno-skip"><span>Experience · Activities · About 섹션 — 이 목업에서는 생략</span></div>
+  </div>
+</main>
+
+<footer class="contact" id="about">
+  <div class="container">
+    <div class="contact-grid">
+      <div>
+        <p class="label"><span class="motif" aria-hidden="true"><i></i><b></b><i></i></span>CONTACT</p>
+        <h2>연락을 기다리고 있습니다.</h2>
+        <a class="mail" href="mailto:seojini00@naver.com">seojini00@naver.com</a>
+        <div class="ctas">
+          <button class="btn btn-secondary" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+            이메일 복사</button>
+          <a class="btn btn-on-inverse" href="anseojin-portfolio.pdf" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+            포트폴리오 PDF 받기</a>
+        </div>
+      </div>
+      <dl class="rows">
+        <div class="row"><dt>전화</dt><dd>010-5465-2165</dd></div>
+        <div class="row"><dt>GitHub</dt><dd><a href="https://github.com/xxj15" target="_blank" rel="noopener">github.com/xxj15
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></dd></div>
+        <div class="row"><dt>velog</dt><dd><a href="https://velog.io/@xxj15/posts" target="_blank" rel="noopener">velog.io/@xxj15/posts
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></dd></div>
+      </dl>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
