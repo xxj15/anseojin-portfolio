@@ -488,11 +488,12 @@ const projectRef = (slug: ProjectSlug) => {
 };
 
 /**
- * Awards 전체(PDF p3 = 예전 사이트 Awards 6건, 최신순). 싸피레이스는 넣지 않는다(사용자 결정).
+ * Awards 전체(기존 6건 + NEW:LEARN 수상, 최신순). 싸피레이스는 넣지 않는다(사용자 결정).
  * Mash UP 1위(DevOops)와 스타트캠프 아이디어톤 반 내 1위는 원문 Awards 목록에 없어 넣지 않았다
  * (각각 DevOops 카드 배지와 Activities에 원문대로 있다).
  */
 export const awards: readonly AwardRow[] = [
+  { date: '2026.11', name: 'SSAFY 2학기 자율 프로젝트 우수상 (3위)', related: projectRef('newlearn') },
   { date: '2026.08', name: 'SSAFY 2학기 공통 프로젝트 우수상 (1위)', related: projectRef('banggoot') },
   { date: '2026.06', name: 'SSAFY 1학기 관통 프로젝트 최우수상 (1위)', related: projectRef('ourwish') },
   { date: '2024.12', name: '서강 융합기술 경진대회 특별상 (AI/SW상)', related: projectRef('msp') },

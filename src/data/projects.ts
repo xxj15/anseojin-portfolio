@@ -64,6 +64,7 @@ export const projects: readonly Project[] = [
     name: 'NEW:LEARN',
     period: { start: '2026.10', end: '2026.11' },
     status: 'completed',
+    award: 'SSAFY 2학기 자율 프로젝트 우수상 (3위)',
     oneLiner:
       '흩어진 뉴스를 이슈의 흐름으로 보여 주는 AI 뉴스 서비스에서, PRD와 SEED Design 기반 디자인 시스템을 만들고 D3 이슈 흐름 · 기사 마인드맵까지 프론트엔드를 전담해 구현했습니다.',
     role: 'FE · UI/UX 디자인 · 기획',

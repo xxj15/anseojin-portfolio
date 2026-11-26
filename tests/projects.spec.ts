@@ -8,7 +8,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 */
 
 const PROJECTS = [
-  { slug: 'newlearn', name: 'NEW:LEARN', period: '2026.10 – 2026.11' },
+  { slug: 'newlearn', name: 'NEW:LEARN', period: '2026.10 – 2026.11', badge: { kind: 'award', text: 'SSAFY 2학기 자율 프로젝트 우수상 (3위)' } },
   { slug: 'finch', name: 'FINCH', period: '2026.08 – 2026.09' },
   { slug: 'banggoot', name: '방긋', period: '2026.07 – 2026.08', badge: { kind: 'award', text: 'SSAFY 2학기 공통 프로젝트 우수상 (1위)' } },
   { slug: 'ourwish', name: 'OURWISH', period: '2026.05 – 2026.06', badge: { kind: 'award', text: 'SSAFY 1학기 관통 프로젝트 최우수상 (1위)' } },

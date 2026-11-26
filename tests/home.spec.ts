@@ -105,6 +105,7 @@ const STATIC_CHIPS = [
   'openai',
 ];
 const AWARDS = [
+  { date: '2026.11', name: 'SSAFY 2학기 자율 프로젝트 우수상 (3위)' },
   { date: '2026.08', name: 'SSAFY 2학기 공통 프로젝트 우수상 (1위)' },
   { date: '2026.06', name: 'SSAFY 1학기 관통 프로젝트 최우수상 (1위)' },
   { date: '2024.12', name: '서강 융합기술 경진대회 특별상 (AI/SW상)' },
@@ -331,9 +332,10 @@ test.describe('카드 그리드', () => {
 
     // 배지 자리: 수상 · 빈칸(진행 중인 프로젝트는 지금 없다)
     await expect(page.locator('.card-badge-slot .status-pill')).toHaveCount(0);
-    for (const slug of ['newlearn', 'finch', 'boogle', 'moa']) {
+    for (const slug of ['finch', 'boogle', 'moa']) {
       await expect(card(page, slug).locator('.card-badge-slot > *')).toHaveCount(0);
     }
+    await expect(card(page, 'newlearn').locator('.award-badge')).toHaveText('SSAFY 2학기 자율 프로젝트 우수상 (3위)');
     await expect(card(page, 'banggoot').locator('.award-badge')).toHaveText('SSAFY 2학기 공통 프로젝트 우수상 (1위)');
     await expect(card(page, 'ourwish').locator('.award-badge')).toHaveText('SSAFY 1학기 관통 프로젝트 최우수상 (1위)');
     await expect(card(page, 'devoops').locator('.award-badge')).toHaveText('Mash UP 동아리 내 프로젝트 1위');
@@ -731,7 +733,7 @@ test.describe('앵커 딥링크', () => {
 // ---------------------------------------------------------------------------
 test.describe('AC: 키보드', () => {
   test('첫 Tab에 "본문으로 건너뛰기", Tab 순서 = 읽기 순서, 2px 포커스 링이 내비에 가리지 않는다', async ({ page }) => {
-    test.setTimeout(120_000); // 상호작용 요소 55개를 하나씩 Tab으로 지나간다
+    test.setTimeout(120_000); // 상호작용 요소를 하나씩 Tab으로 지나간다
     await openHome(page);
     await waitForAnimations(page);
 
@@ -746,14 +748,14 @@ test.describe('AC: 키보드', () => {
       return focusables.length;
     });
     // 읽기 순서: skip · 로고 · 내비 5(About · Tech Stack · Projects · Experience · Activities) (7, 히어로에는 링크 · 칩 · CTA 없음)
-    // + About: 수상 관련 링크 5(프로젝트 4 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog · Blog (11, 이메일 복사 없음)
+    // + About: 수상 관련 링크 6(프로젝트 5 · 서강투데이 ↗) · 이메일 · 휴대폰 · PDF · GitHub · velog · Blog (12, 이메일 복사 없음)
     // + Tech Stack: tech-chip 16 (닫힌 칩 목록 링크는 제외, NEW:LEARN 출시로 D3.js가 늘어 15 → 16)
     // + Projects: 카드 8
     // + Experience: DAILY TICK 링크 2 · 자세히 보기 1 · 물류관리 시스템 GitHub 1 (4)
     // + Activities: OURWISH 프로젝트 보기 · SSAFYcial 인스타그램 · 서강투데이 인스타그램 · 서강투데이 책자
     //   · Mash UP(DevOops 프로젝트 보기 · Next.js 스터디 GitHub · DevOops GitHub) (7)
-    // (페이지 끝 contact-band는 없앴다. 내비에 Tech Stack이 늘어 51 → 52, D3.js 칩이 늘어 52 → 53)
-    expect(total).toBe(53);
+    // (페이지 끝 contact-band는 없앴다. NEW:LEARN 수상 관련 링크가 늘어 53 → 54)
+    expect(total).toBe(54);
 
     await page.keyboard.press('Tab');
     const skip = page.locator('.skip-link');
@@ -1370,17 +1372,18 @@ test.describe('About & Contact', () => {
     await expect(awards.locator('.award-name')).toHaveText(AWARDS.map((award) => award.name));
     await expect(about.locator('.award-list')).not.toContainText('싸피레이스');
     await expect(about.locator('.award-list')).not.toContainText('Mash UP');
-    await expect(awards.nth(0).getByRole('link')).toHaveAttribute('href', '/projects/banggoot/');
-    await expect(awards.nth(1).getByRole('link')).toHaveAttribute('href', '/projects/ourwish/');
+    await expect(awards.nth(0).getByRole('link')).toHaveAttribute('href', '/projects/newlearn/');
+    await expect(awards.nth(1).getByRole('link')).toHaveAttribute('href', '/projects/banggoot/');
+    await expect(awards.nth(2).getByRole('link')).toHaveAttribute('href', '/projects/ourwish/');
     // UNTACT 3위 → 서강투데이 인스타그램(새 탭 ↗, "(새 창)"), 다른 수상 링크와 같은 모양
-    const untact = awards.nth(4).getByRole('link');
+    const untact = awards.nth(5).getByRole('link');
     await expect(untact).toHaveAttribute('href', 'https://www.instagram.com/sogangtoday/');
     await expect(untact).toHaveAttribute('target', '_blank');
     await expect(untact).toHaveAttribute('rel', /noopener/);
     await expect(untact).toHaveText('서강투데이(새 창)');
     await expect(untact.locator('svg[aria-hidden="true"]')).toHaveCount(1);
     await expect(untact).toHaveClass(/award-project/);
-    await expect(awards.nth(5).getByRole('link')).toHaveCount(0); // 책화점은 이름만
+    await expect(awards.nth(6).getByRole('link')).toHaveCount(0); // 책화점은 이름만
     // 수상명·제목은 줄 끝 한두 글자 꼬리를 피한다(text-wrap: balance)
     for (const target of [awards.locator('.award-name').first(), about.locator('h3').first(), about.locator('h2')]) {
       expect(await target.evaluate((element) => getComputedStyle(element).getPropertyValue('text-wrap-style'))).toBe('balance');
